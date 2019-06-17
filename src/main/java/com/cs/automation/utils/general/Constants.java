@@ -1,7 +1,7 @@
 package com.cs.automation.utils.general;
 
 /**
- * Constant Class All constats are defined here
+ * Constant Class All constants are defined here
  **/
 public final class Constants {
 
