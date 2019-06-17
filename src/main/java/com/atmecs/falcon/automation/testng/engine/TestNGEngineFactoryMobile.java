@@ -11,6 +11,8 @@ public class TestNGEngineFactoryMobile {
         switch (template) {
             case DESIRED_SUITE_FOR_GIVEN_MODULES:
                 return new TestNGEngineForDesiredSuitesMobile();
+            case DESIRED_SUITE_FOR_GIVEN_MODULES_WITH_GROUPS:
+            	return new TestNGEngineForDesiredSuitesWithGroupsMobile();
             default:
                 break;
         }

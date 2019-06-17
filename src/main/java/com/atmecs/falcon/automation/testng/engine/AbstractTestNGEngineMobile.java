@@ -16,6 +16,8 @@ public abstract class AbstractTestNGEngineMobile {
     protected List<XmlSuite> mainSuiteFileList = new ArrayList<XmlSuite>();
     SortedSet<String> listOfSelectedClients = new TreeSet<String>();
     SortedSet<String> listOfDesiredModules = new TreeSet<String>();
+    SortedSet<String> listOfDesiredGroups = new TreeSet<String>();
+    SortedSet<String> listOfExcludeGroups = new TreeSet<String>();
     List<XmlSuite> suitesToRun = new ArrayList<XmlSuite>();
     SortedSet<String> listOfBrowserEnvValues = new TreeSet<String>();
 
@@ -65,6 +67,28 @@ public abstract class AbstractTestNGEngineMobile {
     protected SortedSet<String> getEnvModuleValues(String envModuleName) throws Exception {
         return listOfDesiredModules;
     }
+    /**
+     * Purpose: Gets the Set of String values of the System property which defined as part of the
+     * command line
+     * @param envGroupName is the System property name
+     * @return the Sorted Set of the group names Note: Splits the value of System property with
+     *         comma and sets as Set of values
+     * @throws Exception
+     */
+    protected SortedSet<String> getEnvGroupValues(String envGroupName) throws Exception {
+        return listOfDesiredGroups;
+    }
+    /**
+     * Purpose: Gets the Set of String values of the System property which defined as part of the
+     * command line
+     * @param envGroupName is the System property name
+     * @return the Sorted Set of the group names Note: Splits the value of System property with
+     *         comma and sets as Set of values
+     * @throws Exception
+     */
+    protected SortedSet<String> getEnvExcludeGroupValues(String envGroupName) throws Exception {
+        return listOfExcludeGroups;
+    }    
 
     /**
      * Purpose: Gets the Set of String values of the System property which defined as part of the
@@ -113,7 +137,48 @@ public abstract class AbstractTestNGEngineMobile {
         mainSuiteFileList = parseMainSuite(mainSuiteFileName);
         return buildSuites(listOfSelectedClients, mainSuiteFileList);
     }
-
+    /**
+     * Purpose is to get the desired suites to run for TestNG, Note : Only used with
+     * DESIRED_SUITE_FOR_GIVEN_MODULES, DESIRED_SUITE_FOR_GIVEN_CLIENT_BASED_MODULES, Grouping tests
+     * @param mainSuiteFileName
+     * @param envParamClientName
+     * @param envParamDesiredModules
+     * @param envParamDesiredGroups
+     * @return
+     * @throws Exception
+     */
+    public final List<XmlSuite> getSuitesToRunFor(String mainSuiteFileName,
+            String envParamClientName, String envParamDesiredModules, String deviceEnvParams, String envParamDesiredGroups)
+            throws Exception {
+        listOfSelectedClients = getEnvParamValues(envParamClientName);
+        listOfDesiredModules = getEnvModuleValues(envParamDesiredModules);
+        listOfBrowserEnvValues = getBroswerEnvParamValues(deviceEnvParams);
+        listOfDesiredGroups = getEnvGroupValues(envParamDesiredGroups);
+        mainSuiteFileList = parseMainSuite(mainSuiteFileName);
+        return buildSuites(listOfSelectedClients, mainSuiteFileList);
+    }
+    /**
+     * Purpose is to get the desired suites to run for TestNG, Note : Only used with
+     * DESIRED_SUITE_FOR_GIVEN_MODULES, DESIRED_SUITE_FOR_GIVEN_CLIENT_BASED_MODULES, Grouping tests
+     * @param mainSuiteFileName
+     * @param envParamClientName
+     * @param envParamDesiredModules
+     * @param envParamDesiredGroups - include groups
+     * 
+     * @return
+     * @throws Exception
+     */
+    public final List<XmlSuite> getSuitesToRunFor(String mainSuiteFileName,
+            String envParamClientName, String envParamDesiredModules, String deviceEnvParams, String envParamDesiredGroups, String envParamExcludeGroups)
+            throws Exception {
+        listOfSelectedClients = getEnvParamValues(envParamClientName);
+        listOfDesiredModules = getEnvModuleValues(envParamDesiredModules);
+        listOfBrowserEnvValues = getBroswerEnvParamValues(deviceEnvParams);
+        listOfDesiredGroups = getEnvGroupValues(envParamDesiredGroups);
+        listOfExcludeGroups = getEnvExcludeGroupValues(envParamExcludeGroups);
+        mainSuiteFileList = parseMainSuite(mainSuiteFileName);
+        return buildSuites(listOfSelectedClients, mainSuiteFileList);
+    }
     /**
      * Purpose is to get the desired suites to run for TestNG, Note : Only used with
      * DESIRED_SUITE_FOR_GIVEN_CLIENT_BASED_MODULES Templates for testing WebServices (Soap, Rest)
