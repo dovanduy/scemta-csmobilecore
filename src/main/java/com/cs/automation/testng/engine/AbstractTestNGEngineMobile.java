@@ -164,7 +164,7 @@ public abstract class AbstractTestNGEngineMobile {
      * @param envParamClientName
      * @param envParamDesiredModules
      * @param envParamDesiredGroups - include groups
-     * 
+     * @param envParamExcludeGroups - exclude groups
      * @return
      * @throws Exception
      */
