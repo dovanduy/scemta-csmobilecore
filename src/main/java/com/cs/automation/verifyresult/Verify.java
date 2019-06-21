@@ -7,6 +7,7 @@ import org.testng.Reporter;
 
 import com.cs.automation.jiracloud.tm.JiraCloudManager;
 import com.cs.automation.util.logging.LogManager;
+import com.cs.automation.util.reporter.ExtentReportListener;
 
 /**
  * @author mallikarjun.patnam
@@ -91,8 +92,10 @@ public class Verify extends VerifyAbstract {
 
 	}
 
-	public boolean verifyBoolean(boolean actual, boolean expected, String message, boolean updateToJira) {
+	public boolean verifyBoolean(boolean actual, boolean expected, String message, String step, boolean updateToJira) {
 		boolean result = verifyBoolean(actual, expected, message);
+		if(!result)
+			ExtentReportListener.captureFailureScreenShot(testCaseKey, step);
 		if (updateToJira && testCycleKey != null)
 			JiraCloudManager.buildTestStepResults(testCycleKey, testCaseKey, result, message);
 		return result;
@@ -119,8 +122,10 @@ public class Verify extends VerifyAbstract {
 		}
 	}
 
-	public boolean verifyString(String actual, String expected, String message, boolean updateToJira) {
+	public boolean verifyString(String actual, String expected, String message, String step, boolean updateToJira) {
 		boolean result = verifyString(actual, expected, message);
+		if(!result)
+			ExtentReportListener.captureFailureScreenShot(testCaseKey, step);
 		if (updateToJira && testCycleKey != null)
 			JiraCloudManager.buildTestStepResults(testCycleKey, testCaseKey, result, message);
 		return result;
@@ -149,8 +154,10 @@ public class Verify extends VerifyAbstract {
 		return isverified;
 	}
 
-	public boolean verifyTrue(boolean condition, String message, boolean updateToJira) {
+	public boolean verifyTrue(boolean condition, String message, String step, boolean updateToJira) {
 		boolean result = verifyTrue(condition, message);
+		if(!result)
+			ExtentReportListener.captureFailureScreenShot(testCaseKey, step);
 		if (updateToJira && testCycleKey != null)
 			JiraCloudManager.buildTestStepResults(testCycleKey, testCaseKey, result, message);
 		return result;
