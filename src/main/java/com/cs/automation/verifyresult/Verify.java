@@ -8,6 +8,8 @@ import org.testng.Reporter;
 import com.cs.automation.jiracloud.tm.JiraCloudManager;
 import com.cs.automation.util.logging.LogManager;
 import com.cs.automation.util.reporter.ExtentReportListener;
+import com.cs.automation.util.reporter.ExtentTestManager;
+import com.relevantcodes.extentreports.LogStatus;
 
 /**
  * @author mallikarjun.patnam
@@ -95,26 +97,29 @@ public class Verify extends VerifyAbstract {
 	public boolean verifyBoolean(boolean actual, boolean expected, String message, String step, boolean updateToJira) {
 		boolean result = verifyBoolean(actual, expected, message);
 		if(!result)
-			ExtentReportListener.captureFailureScreenShot(testCaseKey, step);
+			ExtentReportListener.captureFailureScreenShot(testCaseKey, step, message);
+		else
+			ExtentTestManager.getTest().log(LogStatus.PASS, "Step "+step+": PASS : " + message);
 		if (updateToJira && testCycleKey != null)
 			JiraCloudManager.buildTestStepResults(testCycleKey, testCaseKey, result, message);
 		return result;
 	}
 
-	public boolean verifyBooleanAndStopTest(boolean actual, boolean expected, String message, boolean updateToJira) {
+	public boolean verifyBooleanAndStopTest(boolean actual, boolean expected, String message, String step, boolean updateToJira) {
 		try {
 			Assert.assertEquals(actual, expected);
 			logger.info("PASS : {} Actual value : {} is same as Expected value: {}", message, actual, expected);
 			Reporter.log("PASS : " + message + ": " + "ACTUAL : " + actual + " 	" + "EXPECTED :" + expected);
+			ExtentTestManager.getTest().log(LogStatus.PASS, "Step "+step+": PASS : " + message);
 			if (updateToJira && testCycleKey != null)
 				JiraCloudManager.buildTestStepResults(testCycleKey, testCaseKey, true, message);
 			return true;
 		} catch (AssertionError assertionError) {
-			// ErrorUtil.addVerificationFailure(assertionError);
 			Reporter.log("FAIL : " + message + ": " + assertionError.getMessage() + ": " + "ACTUAL : " + actual
 					+ " 	" + "EXPECTED :" + expected);
 			logger.error("FAIL : {} Actual value : {} is not same as Expected value: {}", assertionError.getMessage(),
 					actual, expected);
+			ExtentReportListener.captureFailureScreenShot(testCaseKey, step, message);
 			if (updateToJira && testCycleKey != null)
 				JiraCloudManager.buildTestStepResults(testCycleKey, testCaseKey, false, message);
 			Assert.fail(message);
@@ -125,14 +130,16 @@ public class Verify extends VerifyAbstract {
 	public boolean verifyString(String actual, String expected, String message, String step, boolean updateToJira) {
 		boolean result = verifyString(actual, expected, message);
 		if(!result)
-			ExtentReportListener.captureFailureScreenShot(testCaseKey, step);
+			ExtentReportListener.captureFailureScreenShot(testCaseKey, step, message);
+		else
+			ExtentTestManager.getTest().log(LogStatus.PASS, "Step "+step+": PASS : " + message);
 		if (updateToJira && testCycleKey != null)
 			JiraCloudManager.buildTestStepResults(testCycleKey, testCaseKey, result, message);
 		return result;
 	}
 
 	public boolean verifyStringAndStopTest(String actualValue, String expectedValue, String message,
-			boolean updateToJira) {
+			String step, boolean updateToJira) {
 		boolean isverified = false;
 
 		try {
@@ -140,13 +147,14 @@ public class Verify extends VerifyAbstract {
 			Reporter.log(
 					"PASS : " + message + ": " + "ACTUAL : " + actualValue + "    " + "EXPECTED :" + expectedValue);
 			logger.info("PASS : " + message + ": " + "ACTUAL : " + actualValue + "    " + "EXPECTED :" + expectedValue);
+			ExtentTestManager.getTest().log(LogStatus.PASS, "Step "+step+": PASS : " + message);
 			isverified = true;
 			if (updateToJira && testCycleKey != null)
 				JiraCloudManager.buildTestStepResults(testCycleKey, testCaseKey, true, message);
 		} catch (AssertionError assertionError) {
-			// ErrorUtil.addVerificationFailure(assertionError);
 			Reporter.log("FAIL     : " + message + ": " + assertionError.getMessage());
 			logger.error("FAIL      : " + assertionError.getMessage());
+			ExtentReportListener.captureFailureScreenShot(testCaseKey, step, message);
 			if (updateToJira && testCycleKey != null)
 				JiraCloudManager.buildTestStepResults(testCycleKey, testCaseKey, false, message);
 			Assert.fail(message);
@@ -157,26 +165,29 @@ public class Verify extends VerifyAbstract {
 	public boolean verifyTrue(boolean condition, String message, String step, boolean updateToJira) {
 		boolean result = verifyTrue(condition, message);
 		if(!result)
-			ExtentReportListener.captureFailureScreenShot(testCaseKey, step);
+			ExtentReportListener.captureFailureScreenShot(testCaseKey, step, message);
+		else
+			ExtentTestManager.getTest().log(LogStatus.PASS, "Step "+step+": PASS: " + message);
 		if (updateToJira && testCycleKey != null)
 			JiraCloudManager.buildTestStepResults(testCycleKey, testCaseKey, result, message);
 		return result;
 	}
 
-	public boolean verifyTrueAndStopTest(boolean condition, String message, boolean updateToJira) {
+	public boolean verifyTrueAndStopTest(boolean condition, String message, String step, boolean updateToJira) {
 		boolean result = false;
 
 		try {
 			Assert.assertTrue(condition);
 			logger.info("PASS : {}", message);
 			Reporter.log("PASS : " + message);
+			ExtentTestManager.getTest().log(LogStatus.PASS, "Step "+step+": PASS : " + message);
 			if (updateToJira && testCycleKey != null)
 				JiraCloudManager.buildTestStepResults(testCycleKey, testCaseKey, true, message);
 			result = true;
 		} catch (AssertionError assertionError) {
-			// ErrorUtil.addVerificationFailure(assertionError);
 			Reporter.log("FAIL : " + message + ": " + assertionError.getMessage());
 			logger.error("FAIL : {}", assertionError.getMessage());
+			ExtentReportListener.captureFailureScreenShot(testCaseKey, step, message);
 			if (updateToJira && testCycleKey != null)
 				JiraCloudManager.buildTestStepResults(testCycleKey, testCaseKey, false, message);
 			Assert.fail(message);
