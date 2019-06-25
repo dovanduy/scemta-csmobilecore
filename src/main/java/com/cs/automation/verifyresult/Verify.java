@@ -162,6 +162,16 @@ public class Verify extends VerifyAbstract {
 		return isverified;
 	}
 
+	/**
+	 * This method will is used for verification of condition and take screenshot then update
+	 * to JIRA step results.
+	 * @param condition
+	 * @param message message of verification/ JIRA step expected message
+	 * @param step - JIRA Step number, used to take screenshot and log
+	 * @param updateToJira whether to add into JIRA step results or not 
+	 * (If this verification is JIRA step related then it should be true, otherwise false.
+	 * @return
+	 */
 	public boolean verifyTrue(boolean condition, String message, String step, boolean updateToJira) {
 		boolean result = verifyTrue(condition, message);
 		if(!result)

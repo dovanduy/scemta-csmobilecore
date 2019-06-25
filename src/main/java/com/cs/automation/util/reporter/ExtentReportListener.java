@@ -39,9 +39,9 @@ public class ExtentReportListener implements ITestListener,IInvokedMethodListene
 	public void onTestSuccess(ITestResult result) {
 		//Extentreports log operation for passed tests.
 		ExtentTestManager.getTest().log(LogStatus.PASS, "Test passed on : " + result.getMethod().getMethodName());
-		for (String step : Reporter.getOutput(result)) {
-			addStepToExtentReport(step);
-		}
+//		for (String step : Reporter.getOutput(result)) {
+//			addStepToExtentReport(step);
+//		}
 	}
 	@Override
 	public void onTestFailure(ITestResult result) {		

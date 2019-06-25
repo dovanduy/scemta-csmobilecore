@@ -4,6 +4,7 @@
 package com.cs.automation.util.reporter;
 
 import org.slf4j.Logger;
+import org.testng.Reporter;
 
 import com.cs.automation.util.logging.LogManager;
 import com.relevantcodes.extentreports.LogStatus;
@@ -35,7 +36,7 @@ public class ExtentReporter implements ReportLogService {
 	 */
 	public void debug(String message){
 		logger.debug(message);
-		//Reporter.log(message);
+		Reporter.log(message);
 		ExtentTestManager.getTest().log(LogStatus.INFO, message);
 	}
 	
@@ -47,7 +48,7 @@ public class ExtentReporter implements ReportLogService {
 	 */
 	public void info(String message){
 		logger.info(message);
-		//Reporter.log(message);
+		Reporter.log(message);
 		ExtentTestManager.getTest().log(LogStatus.INFO, message);
 	}
 
@@ -59,7 +60,7 @@ public class ExtentReporter implements ReportLogService {
 	 */
 	public void warning(String message){
 		logger.warn(message);
-		//Reporter.log(message);
+		Reporter.log(message);
 		ExtentTestManager.getTest().log(LogStatus.WARNING, message);
 	}
 	
@@ -71,7 +72,7 @@ public class ExtentReporter implements ReportLogService {
 	 */
 	public void error(String message){
 		logger.error(message);
-		//Reporter.log(message);
+		Reporter.log(message);
 		ExtentTestManager.getTest().log(LogStatus.ERROR, message);
 	}
 }
