@@ -58,7 +58,7 @@ public class AmazonCloudRun extends CloudRun implements ICloudRunMode {
     }
 
     @Override
-    public AppiumDriver<MobileElement> getDriverForDevice(String deviceId) {
+    public AppiumDriver<MobileElement> getDriverForDevice(String deviceId, String device_type) {
         return null;
     }
 

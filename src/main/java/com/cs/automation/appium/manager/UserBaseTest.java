@@ -24,11 +24,12 @@ public class UserBaseTest extends AppiumParallelTest {
 	public ReportLogServiceImpl report = new ReportLogServiceImpl(UserBaseTest.class);
 
 	@BeforeClass(alwaysRun = true)
-	@Parameters("device_udid")
-	public void beforeClass(String deviceId) throws Exception {
+	@Parameters({"device_udid","device_type"})
+	public void beforeClass(String deviceId, String deviceType) throws Exception {
 		highLightInLogs("Before Class : Initiating device");
 		String className = getClass().getSimpleName();
 		device_udid = deviceId; 
+		device_type = deviceType;
 		initiateDevice(className);
 	}
 

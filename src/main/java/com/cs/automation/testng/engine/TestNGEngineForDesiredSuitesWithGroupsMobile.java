@@ -39,6 +39,7 @@ import com.cs.automation.appium.device.DeviceManager;
 import com.cs.automation.util.parser.XMLReader;
 import com.cs.automation.util.reporter.ReportLogService;
 import com.cs.automation.util.reporter.ReportLogServiceImpl;
+import com.cs.automation.utils.general.Constants;
 import com.cs.automation.utils.general.PropertyReader;
 
 /**
@@ -109,15 +110,19 @@ public class TestNGEngineForDesiredSuitesWithGroupsMobile extends AbstractTestNG
 					if (listOfTests.size() > 0) {
 						XmlTest test = listOfTests.get(0);
 						String oldTestName = test.getName();
-						for (String device_udid : listOfBrowserEnvValues) {
-							mapToSubstitute = new HashMap<String, String>();
-							setParametersToMap(device_udid);
-							String testName = oldTestName + "-" + device_udid;
-							XmlTest testForDevice = new XmlTest(child);
-							testForDevice.setClasses(test.getClasses());
-							testForDevice.setName(testName);
-							testForDevice.setParameters(mapToSubstitute);
-							listOfTestsToRun.add(testForDevice);
+						for (String key : devicesMap.keySet()) {
+							SortedSet<String> devicesSet = devicesMap.get(key);
+							String platform = key.equalsIgnoreCase(Constants.ANDROID_DEVICES) ? "android" : "ios";
+							for (String device_udid : devicesSet) { 
+								mapToSubstitute = new HashMap<String, String>();
+								setParametersToMap(device_udid,platform);
+								String testName = oldTestName + "-" +platform+ "-" + device_udid; 
+								XmlTest testForDevice = new XmlTest(child);
+								testForDevice.setClasses(test.getClasses());
+								testForDevice.setName(testName);
+								testForDevice.setParameters(mapToSubstitute);
+								listOfTestsToRun.add(testForDevice);
+							}
 						}
 					}
 
@@ -219,13 +224,26 @@ public class TestNGEngineForDesiredSuitesWithGroupsMobile extends AbstractTestNG
 
 	@Override
 	protected SortedSet<String> getBroswerEnvParamValues(String devicesEnvParamName) {
-
+//		List<String> devicesList = new ArrayList<>();
+//		String[] androidDevicesArr = devicesEnvParamName.split(",");
+//		devicesList.addAll(Arrays.asList(androidDevicesArr));
 		SortedSet<String> devicesSet = new TreeSet<>();
-
+//		devicesSet.addAll(devicesList);	// this is from config, but not using
 		devicesSet.addAll(DeviceManager.getSelectedDevices());
 		return devicesSet;
 	}
-
+	protected Map<String, SortedSet<String>> getDevicesEnvParamValues() {
+		Map<String, SortedSet<String>> devicesSortedMap = new HashMap<String, SortedSet<String>>();
+		Map<String, List<String>> devicesListMap = DeviceManager.getSelectedDevicesForGrid();
+		if (devicesListMap != null && (!devicesListMap.isEmpty())) {
+			for (String key : devicesListMap.keySet()) {
+				SortedSet<String> devicesSet = new TreeSet<>();
+				devicesSet.addAll(devicesListMap.get(key));
+				devicesSortedMap.put(key, devicesSet);
+			}
+		}
+		return devicesSortedMap;
+	}
 	@Override
 	protected SortedSet<String> getEnvModuleValues(String envModuleName) throws Exception {
 		try {
@@ -587,7 +605,12 @@ public class TestNGEngineForDesiredSuitesWithGroupsMobile extends AbstractTestNG
 		mapToSubstitute.put("device_udid", device_udid);
 
 	}
+	private void setParametersToMap(String device_udid,String device_type) {
+		mapToSubstitute.put("device_udid", device_udid);
+		mapToSubstitute.put("device_type", device_type);
 
+
+	}
 	private File transformToXmlFile(Document document)
 			throws TransformerFactoryConfigurationError, TransformerConfigurationException, TransformerException {
 		// transform the data into xml file

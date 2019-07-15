@@ -113,10 +113,9 @@ public class BrowserStackCloudRun extends CloudRun {
 	 * @return driver - returns the driver instance for selected platform (Android/IOS) with browserstack capabilities
 	 */
 	@Override
-	public AppiumDriver<MobileElement> getDriverForDevice(String deviceId) {
+	public AppiumDriver<MobileElement> getDriverForDevice(String deviceId, String device_type) {
 
-		String selectedPlatform = PropertyReader.readEnvOrConfigProperty("APP_TYPE");
-		if (selectedPlatform.equalsIgnoreCase("ios")) {
+		if (device_type.equalsIgnoreCase("ios")) {
 			try {
 				driver =
 						new IOSDriver<MobileElement>(new URL(cloudResource.getString("URL")),

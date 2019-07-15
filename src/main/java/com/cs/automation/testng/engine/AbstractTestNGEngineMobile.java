@@ -2,7 +2,9 @@ package com.cs.automation.testng.engine;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -20,7 +22,8 @@ public abstract class AbstractTestNGEngineMobile {
     SortedSet<String> listOfExcludeGroups = new TreeSet<String>();
     List<XmlSuite> suitesToRun = new ArrayList<XmlSuite>();
     SortedSet<String> listOfBrowserEnvValues = new TreeSet<String>();
-
+    Map<String, SortedSet<String>> devicesMap = new HashMap<String, SortedSet<String>>();
+    
     /**
      * Purpose Build suites for each client and for each browser. The implemented class would use
      * the super class attributes
@@ -55,7 +58,9 @@ public abstract class AbstractTestNGEngineMobile {
     protected SortedSet<String> getBroswerEnvParamValues(String browserEnvParamName) {
         return listOfBrowserEnvValues;
     }
-
+    protected Map<String, SortedSet<String>> getDevicesEnvParamValues() {
+        return devicesMap;
+    }
     /**
      * Purpose: Gets the Set of String values of the System property which defined as part of the
      * command line
@@ -134,6 +139,7 @@ public abstract class AbstractTestNGEngineMobile {
         listOfSelectedClients = getEnvParamValues(envParamClientName);
         listOfDesiredModules = getEnvModuleValues(envParamDesiredModules);
         listOfBrowserEnvValues = getBroswerEnvParamValues(deviceEnvParams);
+        devicesMap = getDevicesEnvParamValues();
         mainSuiteFileList = parseMainSuite(mainSuiteFileName);
         return buildSuites(listOfSelectedClients, mainSuiteFileList);
     }
@@ -153,6 +159,7 @@ public abstract class AbstractTestNGEngineMobile {
         listOfSelectedClients = getEnvParamValues(envParamClientName);
         listOfDesiredModules = getEnvModuleValues(envParamDesiredModules);
         listOfBrowserEnvValues = getBroswerEnvParamValues(deviceEnvParams);
+        devicesMap = getDevicesEnvParamValues();
         listOfDesiredGroups = getEnvGroupValues(envParamDesiredGroups);
         mainSuiteFileList = parseMainSuite(mainSuiteFileName);
         return buildSuites(listOfSelectedClients, mainSuiteFileList);
@@ -176,6 +183,7 @@ public abstract class AbstractTestNGEngineMobile {
         listOfBrowserEnvValues = getBroswerEnvParamValues(deviceEnvParams);
         listOfDesiredGroups = getEnvGroupValues(envParamDesiredGroups);
         listOfExcludeGroups = getEnvExcludeGroupValues(envParamExcludeGroups);
+        devicesMap = getDevicesEnvParamValues();
         mainSuiteFileList = parseMainSuite(mainSuiteFileName);
         return buildSuites(listOfSelectedClients, mainSuiteFileList);
     }

@@ -159,8 +159,8 @@ public class CloudRun implements IRunMode {
 	}
 
 	@Override
-	public AppiumDriver<MobileElement> getDriverForDevice(String deviceId) {
-		return cloudRunObject.getDriverForDevice(deviceId);
+	public AppiumDriver<MobileElement> getDriverForDevice(String deviceId, String device_type) {
+		return cloudRunObject.getDriverForDevice(deviceId, device_type);
 	}
 
 	@Override

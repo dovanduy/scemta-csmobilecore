@@ -29,7 +29,7 @@ import io.appium.java_client.ios.IOSDriver;
 import io.appium.java_client.remote.IOSMobileCapabilityType;
 import io.appium.java_client.remote.MobileCapabilityType;
 
-public class RemoteAppium implements IRunMode {
+public class AppiumGrid implements IRunMode {
 	
 	private static List<String> devices = new ArrayList<String>();
 	
@@ -72,29 +72,24 @@ public class RemoteAppium implements IRunMode {
 	 * 
 	 * **/
 	private static void refreshDeviceList() {
-		devices.clear();
-		deviceMapping.clear();
-		
-		try {
-			
-			devices = DeviceManager.getSelectedDevices();
-			
-			for (final String device : devices) {
-				deviceMapping.put(device, true);
-			}
-			System.out.println(deviceMapping);
-		} catch (final Exception e) {
-			e.printStackTrace();
-			System.out.println("Failed to initialize framework");
-		}
-
+		/*
+		 * devices.clear(); deviceMapping.clear();
+		 * 
+		 * try {
+		 * 
+		 * devices = DeviceManager.getSelectedDevices();
+		 * 
+		 * for (final String device : devices) { deviceMapping.put(device, true); }
+		 * System.out.println(deviceMapping); } catch (final Exception e) {
+		 * e.printStackTrace(); System.out.println("Failed to initialize framework"); }
+		 */
 	}
 	
 	
 	//***************************************
 	
 	
-	private ReportLogServiceImpl report = new ReportLogServiceImpl(RemoteAppium.class);
+	private ReportLogServiceImpl report = new ReportLogServiceImpl(AppiumGrid.class);
 	private AppiumDriver<MobileElement> driver;
 
 	@Override
@@ -130,7 +125,6 @@ public class RemoteAppium implements IRunMode {
 	
 	@Override
 	public List<String> getDevicesList() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

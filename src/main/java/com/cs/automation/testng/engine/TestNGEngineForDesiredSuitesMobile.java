@@ -39,430 +39,447 @@ import com.cs.automation.appium.device.DeviceManager;
 import com.cs.automation.util.parser.XMLReader;
 import com.cs.automation.util.reporter.ReportLogService;
 import com.cs.automation.util.reporter.ReportLogServiceImpl;
+import com.cs.automation.utils.general.Constants;
 import com.cs.automation.utils.general.PropertyReader;
 
 /**
- * Purpose : is to execute the test scripts according to the module name provided by the user.
- * Module name must be similar to the Suite xml file (child testng.xml) so this class will filter
- * suites from the provided module name and execute filtered suites only. If no suite found then it
- * will not execute any test scripts
+ * Purpose : is to execute the test scripts according to the module name
+ * provided by the user. Module name must be similar to the Suite xml file
+ * (child testng.xml) so this class will filter suites from the provided module
+ * name and execute filtered suites only. If no suite found then it will not
+ * execute any test scripts
+ * 
  * @author mallikarjun
  */
 public class TestNGEngineForDesiredSuitesMobile extends AbstractTestNGEngineMobile {
 
-    private ReportLogService reporter =
-            new ReportLogServiceImpl(TestNGEngineForDesiredSuitesMobile.class);
-    private Parser mainSuiteParser;
-    private List<XmlSuite> mainSuiteFileList = new ArrayList<XmlSuite>();
-    private SortedSet<String> listOfSelectedClients = new TreeSet<String>();
-    private String clients = null;
-    private String modules = null;
-    protected String[] modulesArray = null;
-    private String[] clientsArray = null;
-    private List<XmlSuite> suitesToRun = new ArrayList<XmlSuite>();
-    private List<String> listSuiteFilesForVirtualTestng = new ArrayList<String>();
-    private String parentSuiteName;
-    private File virtualTestNGFile;
-    private Map<String, String> mapToSubstitute = new HashMap<String, String>();
+	private ReportLogService reporter = new ReportLogServiceImpl(TestNGEngineForDesiredSuitesMobile.class);
+	private Parser mainSuiteParser;
+	private List<XmlSuite> mainSuiteFileList = new ArrayList<XmlSuite>();
+	private SortedSet<String> listOfSelectedClients = new TreeSet<String>();
+	private String clients = null;
+	private String modules = null;
+	protected String[] modulesArray = null;
+	private String[] clientsArray = null;
+	private List<XmlSuite> suitesToRun = new ArrayList<XmlSuite>();
+	private List<String> listSuiteFilesForVirtualTestng = new ArrayList<String>();
+	private String parentSuiteName;
+	private File virtualTestNGFile;
+	private Map<String, String> mapToSubstitute = new HashMap<String, String>();
 
-    @Override
-    protected List<XmlSuite> buildSuites(SortedSet<String> listOfSelectedClients,
-            List<XmlSuite> mainSuiteFileList) throws ParserConfigurationException, SAXException,
-            IOException {
-        reporter.info("INFO: Clients Found: " + listOfSelectedClients + "\n");
-        reporter.info("INFO: Modules Selected: " + listOfDesiredModules + "\n");
-        List<XmlSuite> childSuites = mainSuiteFileList;
-        
-        for (String client : listOfSelectedClients) {
+	@Override
+	protected List<XmlSuite> buildSuites(SortedSet<String> listOfSelectedClients, List<XmlSuite> mainSuiteFileList)
+			throws ParserConfigurationException, SAXException, IOException {
+		reporter.info("INFO: Clients Found: " + listOfSelectedClients + "\n");
+		reporter.info("INFO: Modules Selected: " + listOfDesiredModules + "\n");
+		List<XmlSuite> childSuites = mainSuiteFileList;
+
+		for (String client : listOfSelectedClients) {
 
 //            for (String device_udid : listOfBrowserEnvValues) {			//Here listOfBrowserEnvValues = devices list
-               
-                mainSuiteFileList = getListOfXmlSuiteFromMainSuiteParser();
-                try {
-                    XmlSuite parentSuite = mainSuiteFileList.get(0);
-                    childSuites = parentSuite.getChildSuites();
 
-                } catch (IndexOutOfBoundsException indexOutOfBoundsException) {
-                    reporter.debug("Index for Parent Suite List is out of range :"
-                            + indexOutOfBoundsException.getMessage());
-                    throw indexOutOfBoundsException;
-                }
+			mainSuiteFileList = getListOfXmlSuiteFromMainSuiteParser();
+			try {
+				XmlSuite parentSuite = mainSuiteFileList.get(0);
+				childSuites = parentSuite.getChildSuites();
 
-                if (childSuites.isEmpty()) {
-                    reporter.info("INFO: No Suite Found for the provided Module Name: "
-                            + childSuites);
-                } else if (childSuites.size() > 0) {
+			} catch (IndexOutOfBoundsException indexOutOfBoundsException) {
+				reporter.debug(
+						"Index for Parent Suite List is out of range :" + indexOutOfBoundsException.getMessage());
+				throw indexOutOfBoundsException;
+			}
 
-                    for (XmlSuite child : childSuites) {
-                        String childSuiteName = child.getName();
-                        String clientNameForCurrentSuite =
-                                client + "-" + childSuiteName ;		//+ "-" + device_udid
-                        child.setName(clientNameForCurrentSuite); 
+			if (childSuites.isEmpty()) {
+				reporter.info("INFO: No Suite Found for the provided Module Name: " + childSuites);
+			} else if (childSuites.size() > 0) {
+
+				for (XmlSuite child : childSuites) {
+					String childSuiteName = child.getName();
+					String clientNameForCurrentSuite = client + "-" + childSuiteName; // + "-" + device_udid
+					child.setName(clientNameForCurrentSuite);
 //                        child.setParameters(mapToSubstitute);
-                        
-                        
-                        List<XmlTest> listOfTests = child.getTests();
-                        List<XmlTest> listOfTestsToRun = new ArrayList<>();
-                        
-                        
-                        if (listOfTests.size() > 0) {
-							XmlTest test = listOfTests.get(0);
-							String oldTestName = test.getName();
-							for (String device_udid : listOfBrowserEnvValues) {
-								 mapToSubstitute = new HashMap<String, String>();
-					             setParametersToMap(device_udid);
-					             String testName = oldTestName + "-" + device_udid;
-					             XmlTest testForDevice = new XmlTest(child);
-					             testForDevice.setClasses(test.getClasses());
-					             testForDevice.setName(testName);
-					             testForDevice.setParameters(mapToSubstitute);
-					             listOfTestsToRun.add(testForDevice);
+
+					List<XmlTest> listOfTests = child.getTests();
+					List<XmlTest> listOfTestsToRun = new ArrayList<>();
+
+					if (listOfTests.size() > 0) {
+						XmlTest test = listOfTests.get(0);
+						String oldTestName = test.getName();
+						for (String key : devicesMap.keySet()) {
+							SortedSet<String> devicesSet = devicesMap.get(key);
+							String platform = key.equalsIgnoreCase(Constants.ANDROID_DEVICES) ? "android" : "ios";
+							for (String device_udid : devicesSet) { 
+								mapToSubstitute = new HashMap<String, String>();
+								setParametersToMap(device_udid,platform);
+								String testName = oldTestName + "-" +platform+ "-" + device_udid; 
+								XmlTest testForDevice = new XmlTest(child);
+								testForDevice.setClasses(test.getClasses());
+								testForDevice.setName(testName);
+								testForDevice.setParameters(mapToSubstitute);
+								listOfTestsToRun.add(testForDevice);
 							}
 						}
-                        
-                        child.setTests(listOfTestsToRun);
-                        String parallelMode = PropertyReader.readEnvOrConfigProperty("parallel");
-                        if (parallelMode != null && parallelMode.equalsIgnoreCase("true")) {
-                            child.setParallel(ParallelMode.TESTS);
-                        }
-                        reporter.info("INFO: New Suite Created with name: "
-                                + clientNameForCurrentSuite);
-                        reporter.info(child.toXml());
-                        suitesToRun.add(child);
-                    } // end of for loop childSuites
-                }
+
+					}
+
+					child.setTests(listOfTestsToRun);
+					String parallelMode = PropertyReader.readEnvOrConfigProperty("parallel");
+					if (parallelMode != null && parallelMode.equalsIgnoreCase("true")) {
+						child.setParallel(ParallelMode.TESTS);
+					}
+					reporter.info("INFO: New Suite Created with name: " + clientNameForCurrentSuite);
+					reporter.info(child.toXml());
+					suitesToRun.add(child);
+				} // end of for loop childSuites
+			}
 //            }// end of loop listOfBrowserEnvValues
 
-        } // end of for loop listOfSelectedClients
+		} // end of for loop listOfSelectedClients
 
-        // delete the virtual testng.xml file
-        if (isFileValid(virtualTestNGFile.getName())) {
-            virtualTestNGFile.delete();
-        }
-        return suitesToRun;
-    }
+		// delete the virtual testng.xml file
+		if (isFileValid(virtualTestNGFile.getName())) {
+			virtualTestNGFile.delete();
+		}
+		return suitesToRun;
+	}
 
-    /**
-     * Purpose is to create new tesng.xml file with the desired suite files
-     * @return
-     * @throws TransformerException
-     * @throws ParserConfigurationException
-     */
-    protected File createVirtualParentTestNGXml() throws TransformerException,
-            ParserConfigurationException {
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-        Document document = builder.newDocument();
-        Node rootElement = document.createElement("suite");
-        document.appendChild(rootElement);
-        Attr attrSuite = document.createAttribute("name");
-        attrSuite.setTextContent(parentSuiteName);
-        ((Element) rootElement).setAttributeNode(attrSuite);
+	/**
+	 * Purpose is to create new tesng.xml file with the desired suite files
+	 * 
+	 * @return
+	 * @throws TransformerException
+	 * @throws ParserConfigurationException
+	 */
+	protected File createVirtualParentTestNGXml() throws TransformerException, ParserConfigurationException {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = factory.newDocumentBuilder();
+		Document document = builder.newDocument();
+		Node rootElement = document.createElement("suite");
+		document.appendChild(rootElement);
+		Attr attrSuite = document.createAttribute("name");
+		attrSuite.setTextContent(parentSuiteName);
+		((Element) rootElement).setAttributeNode(attrSuite);
 
-        // Suite Element of TestNG
-        Element suiteFiles = document.createElement("suite-files");
-        rootElement.appendChild(suiteFiles);
+		// Suite Element of TestNG
+		Element suiteFiles = document.createElement("suite-files");
+		rootElement.appendChild(suiteFiles);
 
-        // SuiteFiles Elements of TestNG
-        for (String suitepath : listSuiteFilesForVirtualTestng) {
-            Element suiteFile = document.createElement("suite-file");
-            Attr attrSuiteFile = document.createAttribute("path");
-            attrSuiteFile.setNodeValue(suitepath);
-            suiteFile.setAttributeNode(attrSuiteFile);
-            suiteFiles.appendChild(suiteFile);
-        }
+		// SuiteFiles Elements of TestNG
+		for (String suitepath : listSuiteFilesForVirtualTestng) {
+			Element suiteFile = document.createElement("suite-file");
+			Attr attrSuiteFile = document.createAttribute("path");
+			attrSuiteFile.setNodeValue(suitepath);
+			suiteFile.setAttributeNode(attrSuiteFile);
+			suiteFiles.appendChild(suiteFile);
+		}
 
-        return transformToXmlFile(document);
-    }
+		return transformToXmlFile(document);
+	}
 
-    @Override
-    protected SortedSet<String> getBroswerEnvParamValues(String devicesEnvParamName) {
-    	
-    			SortedSet<String> devicesSet = new TreeSet<>();
-    			
-    			devicesSet.addAll(DeviceManager.getSelectedDevices());
-    			return devicesSet;
-    }
+	@Override
+	protected SortedSet<String> getBroswerEnvParamValues(String devicesEnvParamName) {
 
-    @Override
-    protected SortedSet<String> getEnvModuleValues(String envModuleName) throws Exception {
-        try {
-            // modules = "module1";
-            modules = envModuleName;
-            if (modules == null || modules.equals(null) || modules.isEmpty()) {
-                throw new NullPointerException("Env Module Parameter value cannot be null");
-            }
-            reporter.info("INFO: The value found with Environment Module variable " + envModuleName
-                    + " is: " + modules);
-            modulesArray = modules.split(",");
-        } catch (NullPointerException nullPointerException) {
-            reporter.debug("Environment Parameter cannot be null: "
-                    + nullPointerException.getMessage());
-            throw nullPointerException;
-        } catch (PatternSyntaxException patternSyntaxException) {
-            reporter.debug("Regular Expression Syntax Error" + patternSyntaxException.getMessage());
-            throw patternSyntaxException;
-        }
+		SortedSet<String> devicesSet = new TreeSet<>();
 
-        catch (SecurityException securityException) {
-            reporter.debug("Security Exception for Environment Variable  :"
-                    + securityException.getMessage());
-            throw securityException;
-        }
+		devicesSet.addAll(DeviceManager.getSelectedDevices());
 
-        try {
-            Collections.addAll(listOfDesiredModules, modulesArray);
-        } catch (UnsupportedOperationException unsupportedOperationException) {
-            reporter.debug("Unsupported Add all collection Exception: "
-                    + unsupportedOperationException.getMessage());
-            throw unsupportedOperationException;
+		return devicesSet;
+	}
 
-        } catch (NullPointerException nullPointerException) {
-            reporter.debug("Null elements cannot be added: " + nullPointerException.getMessage());
-            throw nullPointerException;
-        } catch (IllegalArgumentException illegalAugumentException) {
-            reporter.debug("Illegar property elment argument Exception: "
-                    + illegalAugumentException.getMessage());
-            throw illegalAugumentException;
-        }
+	protected Map<String, SortedSet<String>> getDevicesEnvParamValues() {
+		Map<String, SortedSet<String>> devicesSortedMap = new HashMap<String, SortedSet<String>>();
+		Map<String, List<String>> devicesListMap = DeviceManager.getSelectedDevicesForGrid();
+		if (devicesListMap != null && (!devicesListMap.isEmpty())) {
+			for (String key : devicesListMap.keySet()) {
+				SortedSet<String> devicesSet = new TreeSet<>();
+				devicesSet.addAll(devicesListMap.get(key));
+				devicesSortedMap.put(key, devicesSet);
+			}
+		}
+		return devicesSortedMap;
+	}
 
-        return listOfDesiredModules;
-    }
+	@Override
+	protected SortedSet<String> getEnvModuleValues(String envModuleName) throws Exception {
+		try {
+			// modules = "module1";
+			modules = envModuleName;
+			if (modules == null || modules.equals(null) || modules.isEmpty()) {
+				throw new NullPointerException("Env Module Parameter value cannot be null");
+			}
+			reporter.info(
+					"INFO: The value found with Environment Module variable " + envModuleName + " is: " + modules);
+			modulesArray = modules.split(",");
+		} catch (NullPointerException nullPointerException) {
+			reporter.debug("Environment Parameter cannot be null: " + nullPointerException.getMessage());
+			throw nullPointerException;
+		} catch (PatternSyntaxException patternSyntaxException) {
+			reporter.debug("Regular Expression Syntax Error" + patternSyntaxException.getMessage());
+			throw patternSyntaxException;
+		}
 
-    @Override
-    protected SortedSet<String> getEnvParamValues(String envParamName) {
-        try {
-            // clients = "cs";
-            clients = envParamName;
-            if (clients == null || clients.equals(null) || clients.isEmpty()) {
-                throw new NullPointerException("Env Parameter value cannot be null");
-            }
-            reporter.info("INFO: The value found with Environment variable " + envParamName
-                    + " is: " + clients);
-            clientsArray = clients.split(",");
-        } catch (NullPointerException nullPointerException) {
-            reporter.debug("Environment Parameter cannot be null: "
-                    + nullPointerException.getMessage());
-            throw nullPointerException;
+		catch (SecurityException securityException) {
+			reporter.debug("Security Exception for Environment Variable  :" + securityException.getMessage());
+			throw securityException;
+		}
 
-        } catch (PatternSyntaxException patternSyntaxException) {
-            reporter.debug("Regular Expression Syntax Error" + patternSyntaxException.getMessage());
-            throw patternSyntaxException;
-        }
+		try {
+			Collections.addAll(listOfDesiredModules, modulesArray);
+		} catch (UnsupportedOperationException unsupportedOperationException) {
+			reporter.debug("Unsupported Add all collection Exception: " + unsupportedOperationException.getMessage());
+			throw unsupportedOperationException;
 
-        catch (SecurityException securityException) {
-            reporter.debug("Security Exception for Environment Variable  :"
-                    + securityException.getMessage());
-            throw securityException;
-        }
+		} catch (NullPointerException nullPointerException) {
+			reporter.debug("Null elements cannot be added: " + nullPointerException.getMessage());
+			throw nullPointerException;
+		} catch (IllegalArgumentException illegalAugumentException) {
+			reporter.debug("Illegar property elment argument Exception: " + illegalAugumentException.getMessage());
+			throw illegalAugumentException;
+		}
 
-        try {
-            Collections.addAll(listOfSelectedClients, clientsArray);
-        } catch (UnsupportedOperationException unsupportedOperationException) {
-            reporter.debug("Unsupported Add all collection Exception: "
-                    + unsupportedOperationException.getMessage());
-            throw unsupportedOperationException;
+		return listOfDesiredModules;
+	}
 
-        } catch (NullPointerException nullPointerException) {
-            reporter.debug("Null elements cannot be added: " + nullPointerException.getMessage());
-            throw nullPointerException;
-        } catch (IllegalArgumentException illegalAugumentException) {
-            reporter.debug("Illegar property elment argument Exception: "
-                    + illegalAugumentException.getMessage());
-            throw illegalAugumentException;
-        }
+	@Override
+	protected SortedSet<String> getEnvParamValues(String envParamName) {
+		try {
+			// clients = "cs";
+			clients = envParamName;
+			if (clients == null || clients.equals(null) || clients.isEmpty()) {
+				throw new NullPointerException("Env Parameter value cannot be null");
+			}
+			reporter.info("INFO: The value found with Environment variable " + envParamName + " is: " + clients);
+			clientsArray = clients.split(",");
+		} catch (NullPointerException nullPointerException) {
+			reporter.debug("Environment Parameter cannot be null: " + nullPointerException.getMessage());
+			throw nullPointerException;
 
-        return listOfSelectedClients;
-        
-        
-    }
+		} catch (PatternSyntaxException patternSyntaxException) {
+			reporter.debug("Regular Expression Syntax Error" + patternSyntaxException.getMessage());
+			throw patternSyntaxException;
+		}
 
-    /**
-     * Purpose is to return the List XmlSuite from the (Parser) mainSuiteParser object.
-     * @return is List<XmlSuites> of XmlSuite.
-     * @throws ParserConfigurationException
-     * @throws IOException
-     * @throws SAXException
-     */
-    private List<XmlSuite> getListOfXmlSuiteFromMainSuiteParser()
-            throws  IOException {
-        try {
-            mainSuiteFileList = mainSuiteParser.parseToList();
-        } catch (IOException ioException) {
-            reporter.debug("IO Exception occurred :" + ioException.getMessage());
-            throw ioException;
+		catch (SecurityException securityException) {
+			reporter.debug("Security Exception for Environment Variable  :" + securityException.getMessage());
+			throw securityException;
+		}
 
-        }
-        return mainSuiteFileList;
-    }
+		try {
+			Collections.addAll(listOfSelectedClients, clientsArray);
+		} catch (UnsupportedOperationException unsupportedOperationException) {
+			reporter.debug("Unsupported Add all collection Exception: " + unsupportedOperationException.getMessage());
+			throw unsupportedOperationException;
 
-    /**
-     * Purpose: Validates the given filename exists or not
-     * @param filename is the existing Xml Suite file
-     * @return true or false
-     * @throws FileNotFoundException if the file name passed as parameter is not found
-     */
+		} catch (NullPointerException nullPointerException) {
+			reporter.debug("Null elements cannot be added: " + nullPointerException.getMessage());
+			throw nullPointerException;
+		} catch (IllegalArgumentException illegalAugumentException) {
+			reporter.debug("Illegar property elment argument Exception: " + illegalAugumentException.getMessage());
+			throw illegalAugumentException;
+		}
 
-    private boolean isFileValid(String filename) throws FileNotFoundException {
+		return listOfSelectedClients;
 
-        if (filename == null) {
-            reporter.debug("File name cannot be null: " + filename);
-            throw new NullPointerException("File name cannot be null: " + filename);
+	}
 
-        }
-        if (!new File(filename).exists()) {
-            reporter.debug("File does not exist on the path given " + filename);
-            throw new FileNotFoundException("File does not exist at given location: " + filename);
-        }
-        return true;
-    }
+	/**
+	 * Purpose is to return the List XmlSuite from the (Parser) mainSuiteParser
+	 * object.
+	 * 
+	 * @return is List<XmlSuites> of XmlSuite.
+	 * @throws ParserConfigurationException
+	 * @throws IOException
+	 * @throws SAXException
+	 */
+	private List<XmlSuite> getListOfXmlSuiteFromMainSuiteParser() throws IOException {
+		try {
+			mainSuiteFileList = mainSuiteParser.parseToList();
+		} catch (IOException ioException) {
+			reporter.debug("IO Exception occurred :" + ioException.getMessage());
+			throw ioException;
 
-    /**
-     * Purpose is to parse the parent testng.xml file for getting all the tags inside it. It will
-     * add desired suite files to the List listSuiteFilesForVirtualTestng
-     * @param mainSuitFilename parent testng file name
-     * @throws ParserConfigurationException
-     * @throws SAXException
-     * @throws IOException
-     */
-    protected void parseAndApplyFilterOnParentTestNGXml(String mainSuitFilename)
-            throws ParserConfigurationException, SAXException, IOException {
-        XMLReader xmlReaderForMainSuiteFile = new XMLReader(new File(mainSuitFilename));
-        Document mainDocument = xmlReaderForMainSuiteFile.getDocument();
-        NodeList allNodesInDocument = mainDocument.getChildNodes();
+		}
+		return mainSuiteFileList;
+	}
 
-        // this will read all the content of main testng.xml
-        readAllNodes(allNodesInDocument);
-    }
+	/**
+	 * Purpose: Validates the given filename exists or not
+	 * 
+	 * @param filename is the existing Xml Suite file
+	 * @return true or false
+	 * @throws FileNotFoundException if the file name passed as parameter is not
+	 *                               found
+	 */
 
-    @Override
-    protected List<XmlSuite> parseMainSuite(String mainSuitFilename)
-            throws ParserConfigurationException, SAXException, IOException, TransformerException {
-        if (isFileValid(mainSuitFilename)) {
-            try {
-                parseAndApplyFilterOnParentTestNGXml(mainSuitFilename);
-                // Generate new xml with the desired suite path and pass the file name to TestNG
-                // Parser Class
-                virtualTestNGFile = createVirtualParentTestNGXml();
-                mainSuitFilename = virtualTestNGFile.getName();
-                mainSuiteParser = new Parser(mainSuitFilename);
-                mainSuiteFileList = getListOfXmlSuiteFromMainSuiteParser();
-            } catch (TransformerException transformerException) {
-                reporter.debug("TransformerException cannot transfrom into xml file "
-                        + transformerException.getMessage());
-                throw transformerException;
-            }
+	private boolean isFileValid(String filename) throws FileNotFoundException {
 
-        }
+		if (filename == null) {
+			reporter.debug("File name cannot be null: " + filename);
+			throw new NullPointerException("File name cannot be null: " + filename);
 
-        else {
-            reporter.debug("Invalid File: " + mainSuitFilename);
-            throw new IllegalArgumentException("Invalid File Argument: " + mainSuitFilename);
+		}
+		if (!new File(filename).exists()) {
+			reporter.debug("File does not exist on the path given " + filename);
+			throw new FileNotFoundException("File does not exist at given location: " + filename);
+		}
+		return true;
+	}
 
-        }
+	/**
+	 * Purpose is to parse the parent testng.xml file for getting all the tags
+	 * inside it. It will add desired suite files to the List
+	 * listSuiteFilesForVirtualTestng
+	 * 
+	 * @param mainSuitFilename parent testng file name
+	 * @throws ParserConfigurationException
+	 * @throws SAXException
+	 * @throws IOException
+	 */
+	protected void parseAndApplyFilterOnParentTestNGXml(String mainSuitFilename)
+			throws ParserConfigurationException, SAXException, IOException {
+		XMLReader xmlReaderForMainSuiteFile = new XMLReader(new File(mainSuitFilename));
+		Document mainDocument = xmlReaderForMainSuiteFile.getDocument();
+		NodeList allNodesInDocument = mainDocument.getChildNodes();
 
-        return mainSuiteFileList;
-    }
+		// this will read all the content of main testng.xml
+		readAllNodes(allNodesInDocument);
+	}
 
-    /**
-     * Purpose is to read add nodes(tags) available in testng.xml
-     * @param allNodes is org.w3c.dom.NodeList
-     */
-    private void readAllNodes(NodeList allNodes) {
-        for (int nodeIndex = 0; nodeIndex < allNodes.getLength(); nodeIndex++) {
-            Node rootElement = allNodes.item(nodeIndex);
-            if (rootElement.getNodeType() == Node.ELEMENT_NODE) {
-                readParentSuiteName(rootElement);
-                readChildNodes(rootElement);
-            }
-        }
-    }
+	@Override
+	protected List<XmlSuite> parseMainSuite(String mainSuitFilename)
+			throws ParserConfigurationException, SAXException, IOException, TransformerException {
+		if (isFileValid(mainSuitFilename)) {
+			try {
+				parseAndApplyFilterOnParentTestNGXml(mainSuitFilename);
+				// Generate new xml with the desired suite path and pass the file name to TestNG
+				// Parser Class
+				virtualTestNGFile = createVirtualParentTestNGXml();
+				mainSuitFilename = virtualTestNGFile.getName();
+				mainSuiteParser = new Parser(mainSuitFilename);
+				mainSuiteFileList = getListOfXmlSuiteFromMainSuiteParser();
+			} catch (TransformerException transformerException) {
+				reporter.debug(
+						"TransformerException cannot transfrom into xml file " + transformerException.getMessage());
+				throw transformerException;
+			}
 
-    /**
-     * Purpose is to read all the child node available in <suite-files> tag present in testng.xml,
-     * apply filter only on desired suite and add them to a List.
-     * @param nodeList is org.w3c.dom.NodeList
-     */
-    private void readAndFilterDesiredSuiteFiles(NodeList nodeList) {
-        listSuiteFilesForVirtualTestng.clear();
-        for (int count = 0; count < nodeList.getLength(); count++) {
-            Node tempNode = nodeList.item(count);
+		}
 
-            // make sure it's element node.
-            if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
-                if (tempNode.hasAttributes()) {
-                    // get attributes names and values
-                    NamedNodeMap nodeMap = tempNode.getAttributes();
-                    for (int index = 0; index < nodeMap.getLength(); index++) {
-                        Node node = nodeMap.item(index);
-                        String suiteFilePath = node.getNodeValue();
-                        for (String moduleName : modulesArray) {
-                            String suiteFileName =
-                                    suiteFilePath.substring(suiteFilePath.lastIndexOf("/") + 1,
-                                            suiteFilePath.lastIndexOf("."));
-                            if (suiteFileName.equalsIgnoreCase(moduleName)) {
-                                if (!listSuiteFilesForVirtualTestng.contains(suiteFilePath)) {
-                                    listSuiteFilesForVirtualTestng.add(suiteFilePath);
-                                }
-                            }
-                        }
-                    }
-                }
-                if (tempNode.hasChildNodes()) {
-                    // loop again if has child nodes
-                    readAndFilterDesiredSuiteFiles(tempNode.getChildNodes());
-                }
-            }
-        }
+		else {
+			reporter.debug("Invalid File: " + mainSuitFilename);
+			throw new IllegalArgumentException("Invalid File Argument: " + mainSuitFilename);
 
-    }
+		}
 
-    private void readChildNodes(Node rootElement) {
-        if (rootElement.hasChildNodes()) {
-            NodeList suiteFilesElement = rootElement.getChildNodes();
-            for (int nodeIndex = 0; nodeIndex < suiteFilesElement.getLength(); nodeIndex++) {
-                Node childNode = suiteFilesElement.item(nodeIndex);
-                if (childNode.hasChildNodes()) {
-                    NodeList suiteFileList = childNode.getChildNodes();
+		return mainSuiteFileList;
+	}
 
-                    // add desired suite path to the List listSuiteFilesForVirtualTestng
-                    readAndFilterDesiredSuiteFiles(suiteFileList);
-                }
-            }
-        }
-    }
+	/**
+	 * Purpose is to read add nodes(tags) available in testng.xml
+	 * 
+	 * @param allNodes is org.w3c.dom.NodeList
+	 */
+	private void readAllNodes(NodeList allNodes) {
+		for (int nodeIndex = 0; nodeIndex < allNodes.getLength(); nodeIndex++) {
+			Node rootElement = allNodes.item(nodeIndex);
+			if (rootElement.getNodeType() == Node.ELEMENT_NODE) {
+				readParentSuiteName(rootElement);
+				readChildNodes(rootElement);
+			}
+		}
+	}
 
-    private void readParentSuiteName(Node rootElement) {
-        if (rootElement.hasAttributes() && rootElement.getLocalName().equals("suite")) {
-            NamedNodeMap nameNodeMap = rootElement.getAttributes();
-            Node suiteElement = nameNodeMap.getNamedItem("name");
-            if (suiteElement != null) {
-                parentSuiteName = suiteElement.getNodeValue();
-            }
-        }
-    }
+	/**
+	 * Purpose is to read all the child node available in <suite-files> tag present
+	 * in testng.xml, apply filter only on desired suite and add them to a List.
+	 * 
+	 * @param nodeList is org.w3c.dom.NodeList
+	 */
+	private void readAndFilterDesiredSuiteFiles(NodeList nodeList) {
+		listSuiteFilesForVirtualTestng.clear();
+		for (int count = 0; count < nodeList.getLength(); count++) {
+			Node tempNode = nodeList.item(count);
 
-    /**
-     * Purpose: This method sets the parameters to a Map object. To use to set the parameters to
-     * suite objects
-     * @param paramsList
-     */
-    private void setParametersToMap(String device_udid) {
-    	
-        mapToSubstitute.put("device_udid", device_udid);
-        
-    }
+			// make sure it's element node.
+			if (tempNode.getNodeType() == Node.ELEMENT_NODE) {
+				if (tempNode.hasAttributes()) {
+					// get attributes names and values
+					NamedNodeMap nodeMap = tempNode.getAttributes();
+					for (int index = 0; index < nodeMap.getLength(); index++) {
+						Node node = nodeMap.item(index);
+						String suiteFilePath = node.getNodeValue();
+						for (String moduleName : modulesArray) {
+							String suiteFileName = suiteFilePath.substring(suiteFilePath.lastIndexOf("/") + 1,
+									suiteFilePath.lastIndexOf("."));
+							if (suiteFileName.equalsIgnoreCase(moduleName)) {
+								if (!listSuiteFilesForVirtualTestng.contains(suiteFilePath)) {
+									listSuiteFilesForVirtualTestng.add(suiteFilePath);
+								}
+							}
+						}
+					}
+				}
+				if (tempNode.hasChildNodes()) {
+					// loop again if has child nodes
+					readAndFilterDesiredSuiteFiles(tempNode.getChildNodes());
+				}
+			}
+		}
 
-    private File transformToXmlFile(Document document) throws TransformerFactoryConfigurationError,
-            TransformerConfigurationException, TransformerException {
-        // transform the data into xml file
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
-        DOMSource domSource = new DOMSource(document);
-        File file = new File("testng1.xml");
-        StreamResult streamResult = new StreamResult(file);
-        transformer.transform(domSource, streamResult);
-        return file;
-    }
+	}
+
+	private void readChildNodes(Node rootElement) {
+		if (rootElement.hasChildNodes()) {
+			NodeList suiteFilesElement = rootElement.getChildNodes();
+			for (int nodeIndex = 0; nodeIndex < suiteFilesElement.getLength(); nodeIndex++) {
+				Node childNode = suiteFilesElement.item(nodeIndex);
+				if (childNode.hasChildNodes()) {
+					NodeList suiteFileList = childNode.getChildNodes();
+
+					// add desired suite path to the List listSuiteFilesForVirtualTestng
+					readAndFilterDesiredSuiteFiles(suiteFileList);
+				}
+			}
+		}
+	}
+
+	private void readParentSuiteName(Node rootElement) {
+		if (rootElement.hasAttributes() && rootElement.getLocalName().equals("suite")) {
+			NamedNodeMap nameNodeMap = rootElement.getAttributes();
+			Node suiteElement = nameNodeMap.getNamedItem("name");
+			if (suiteElement != null) {
+				parentSuiteName = suiteElement.getNodeValue();
+			}
+		}
+	}
+
+	/**
+	 * Purpose: This method sets the parameters to a Map object. To use to set the
+	 * parameters to suite objects
+	 * 
+	 * @param paramsList
+	 */
+	private void setParametersToMap(String device_udid) {
+
+		mapToSubstitute.put("device_udid", device_udid);
+
+	}
+	private void setParametersToMap(String device_udid,String device_type) {
+		mapToSubstitute.put("device_udid", device_udid);
+		mapToSubstitute.put("device_type", device_type);
+
+
+	}
+	private File transformToXmlFile(Document document)
+			throws TransformerFactoryConfigurationError, TransformerConfigurationException, TransformerException {
+		// transform the data into xml file
+		TransformerFactory transformerFactory = TransformerFactory.newInstance();
+		Transformer transformer = transformerFactory.newTransformer();
+		DOMSource domSource = new DOMSource(document);
+		File file = new File("testng1.xml");
+		StreamResult streamResult = new StreamResult(file);
+		transformer.transform(domSource, streamResult);
+		return file;
+	}
 
 }

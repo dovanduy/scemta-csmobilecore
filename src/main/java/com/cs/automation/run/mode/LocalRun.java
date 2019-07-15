@@ -264,9 +264,9 @@ public class LocalRun implements IRunMode {
 	 * Initiate the driver with desired capabilities and appium url
 	 */
 	@Override
-	public AppiumDriver<MobileElement> getDriverForDevice(String deviceId) {
+	public AppiumDriver<MobileElement> getDriverForDevice(String deviceId, String device_type) {
 		try {
-			driver = initiateDriverForDevice(deviceId);
+			driver = initiateDriverForDevice(deviceId,device_type);
 			return driver;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -297,7 +297,7 @@ public class LocalRun implements IRunMode {
 	 * @param method name
 	 * @return driver with the device capabilities
 	 **/
-	private synchronized AppiumDriver<MobileElement> initiateDriverForDevice(String deviceId) {
+	private synchronized AppiumDriver<MobileElement> initiateDriverForDevice(String deviceId, String deviceType) {
 		appiumMan = appiumManagerMap.get(deviceId);
 		if (PropertyReader.readEnvOrConfigProperty(Constants.APP_TYPE).equalsIgnoreCase("web")) {
 			driver = new AndroidDriver<>(appiumMan.getAppiumUrl(), androidWeb(deviceId));

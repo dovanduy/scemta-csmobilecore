@@ -165,7 +165,7 @@ public class RemoteRun implements IRunMode {
      * @return returns the driver for provided deviceId
      */
     @Override
-    public synchronized AppiumDriver<MobileElement> getDriverForDevice(String deviceId) {
+    public synchronized AppiumDriver<MobileElement> getDriverForDevice(String deviceId, String device_type) {
         // TODO Auto-generated method stub
         String remoteAddress = "http://" + remoteAppiumUrlMap.get(deviceId) + "/wd/hub";
         System.out.println("printing address for device  " + deviceId + "  Address "

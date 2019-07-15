@@ -57,9 +57,9 @@ public class SauceLabCloudRun extends CloudRun implements ICloudRunMode {
         }
         return null;
     }
-
+    // TODO No setup for iOS
     @Override
-    public AppiumDriver<MobileElement> getDriverForDevice(String deviceId) {
+    public AppiumDriver<MobileElement> getDriverForDevice(String deviceId, String device_type) {
         try {
             driver =
                     new AndroidDriver<MobileElement>(new URL(cloudResource.getString("URL")),

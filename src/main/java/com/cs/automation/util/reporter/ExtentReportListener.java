@@ -46,16 +46,18 @@ public class ExtentReportListener implements ITestListener, IInvokedMethodListen
 
 	@Override
 	public void onTestFailure(ITestResult result) {
-		ExtentTestManager.getTest().log(LogStatus.FAIL, "Test failed on : " + result.getMethod().getMethodName());
+		if (ExtentTestManager.getTest() != null) {
+			ExtentTestManager.getTest().log(LogStatus.FAIL, "Test failed on : " + result.getMethod().getMethodName());
 //		for (String step : Reporter.getOutput(result)) 
 //			addStepToExtentReport(step);
-		// commented below screenshot capture as we already taking screenshot on verify
-		// fail
-		// String imagePath = takesScreenShot(result.getMethod().getMethodName());
-		// ExtentTestManager.getTest().log(LogStatus.FAIL,
-		// ExtentTestManager.getTest().addScreenCapture(imagePath));
-		String stackTrace = ExceptionUtils.getStackTrace(result.getThrowable());
-		ExtentTestManager.getTest().log(LogStatus.ERROR, "<pre>stackTrace: " + stackTrace + "</pre>");
+			// commented below screenshot capture as we already taking screenshot on verify
+			// fail
+			// String imagePath = takesScreenShot(result.getMethod().getMethodName());
+			// ExtentTestManager.getTest().log(LogStatus.FAIL,
+			// ExtentTestManager.getTest().addScreenCapture(imagePath));
+			String stackTrace = ExceptionUtils.getStackTrace(result.getThrowable());
+			ExtentTestManager.getTest().log(LogStatus.ERROR, "<pre>stackTrace: " + stackTrace + "</pre>");
+		}
 	}
 
 	@Override
@@ -101,17 +103,18 @@ public class ExtentReportListener implements ITestListener, IInvokedMethodListen
 		return "images" + File.separator + methodName + ".png";
 	}
 
-	public static void captureFailureScreenShot(String methodName, String stepNumber, String message) {
+	public static void captureFailureScreenShot(String methodName, String stepNumber, String message, String deviceId) {
 		String filePath = System.getProperty("user.dir") + File.separator + "Reports" + File.separator + "images"
 				+ File.separator;
 		File srcFile = ((TakesScreenshot) ThreadPool.getDriverInfo().getDriver()).getScreenshotAs(OutputType.FILE);
 		if (stepNumber == null)
 			stepNumber = "step";
-		String fileName = methodName + "-" + stepNumber + ".png";
+		String fileName = methodName + "-Step" + stepNumber + "-" + deviceId.substring(0, 9) + ".png";
 		String imagePath = filePath + fileName;
 		try {
 			FileUtils.copyFile(srcFile, new File(imagePath));
-			System.out.println("Screenshot taken for method: " + methodName + "-" + stepNumber);
+			System.out.println(
+					"Screenshot taken for method: " + methodName + "-" + stepNumber + " for device " + deviceId);
 			ExtentTestManager.getTest().log(LogStatus.FAIL,
 					ExtentTestManager.getTest().addScreenCapture("images" + File.separator + fileName));
 		} catch (IOException e) {

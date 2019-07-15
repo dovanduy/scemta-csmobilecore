@@ -2,7 +2,9 @@ package com.cs.automation.appium.device;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import com.cs.automation.run.mode.RunModeFactory;
@@ -16,23 +18,35 @@ public class DeviceManager {
 	 * @author mallikarjun
 	 * @return 	true - If user has provided the devices in config.properties
 	 * 			false - If user has not provided the devices in config.properties
-	 */
+	 */ 
 	public static boolean isUserProvidedDevices() {
+		ERunModeType runModeType = RunModeFactory.getRunModeType();
 		String platform = getSelectedPlatform();
+		if(runModeType == ERunModeType.APPIUM_GRID && platform.equalsIgnoreCase(Constants.BOTH)) {
+			return (isAndroidDevicesProvided() || isIosDevicesProvided());
+		}
+		
 		if (platform.equalsIgnoreCase(Constants.ANDROID)) {
-			String androidDevices = PropertyReader.readEnvOrConfigProperty(Constants.ANDROID_DEVICES);
-			if (androidDevices.trim().isEmpty())
-				return false;
-			else
-				return true;
+			return isAndroidDevicesProvided();
 		}else if (platform.equalsIgnoreCase(Constants.IOS)) {
-			String iosDevices = PropertyReader.readEnvOrConfigProperty(Constants.IOS_DEVICES);
-			if (iosDevices.trim().isEmpty())
-				return false;
-			else
-				return true;
+			return isIosDevicesProvided();
 		}else
 			return false;
+	}
+	
+	private static boolean isAndroidDevicesProvided() {
+		String androidDevices = PropertyReader.readEnvOrConfigProperty(Constants.ANDROID_DEVICES);
+		if (androidDevices.trim().isEmpty())
+			return false;
+		else
+			return true;
+	}
+	private static boolean isIosDevicesProvided() {
+		String iosDevices = PropertyReader.readEnvOrConfigProperty(Constants.IOS_DEVICES);
+		if (iosDevices.trim().isEmpty())
+			return false;
+		else
+			return true;
 	}
 	
 	/**
@@ -59,6 +73,8 @@ public class DeviceManager {
 			return getDevicesListForLocalRunMode();
 		case REMOTE_APPIUM:
 			return getDevicesListForLocalRunMode();
+		case APPIUM_GRID:
+			return getDevicesListForGridRunMode();	 
 		case CLOUD_RUN:
 			return getDevicesListForCloudRunMode();
 		default:
@@ -67,7 +83,22 @@ public class DeviceManager {
 		
 	}
 	
-	
+	public static Map<String, List<String>> getSelectedDevicesForGrid() {
+		ERunModeType eRunMode = RunModeFactory.getRunModeType();
+		switch (eRunMode) {
+		case LOCAL_RUN:
+			return getDevicesMapForLocalRunMode();
+		case REMOTE_APPIUM:
+			return getDevicesMapForLocalRunMode();
+		case APPIUM_GRID:
+			return getDevicesMapForGridRunMode();	 
+//		case CLOUD_RUN:
+//			return getDevicesListForCloudRunMode();		// TODO
+		default:
+			return null;
+		}
+		
+	}
 	/**
 	 * @author mallikarjun
 	 * @return listOFDevices - list of connected devices to local machine
@@ -78,7 +109,6 @@ public class DeviceManager {
 	 */
 	private static List<String> getDevicesListForLocalRunMode() {
 		List<String> devicesList = new ArrayList<>();
-		
 		if (isUserProvidedDevices()) {
 			if (isPlatformIsAndroid()) {
 				String androidDevices = PropertyReader.readEnvOrConfigProperty(Constants.ANDROID_DEVICES);
@@ -110,7 +140,108 @@ public class DeviceManager {
 		return devicesList;
 	
 	}
+	private static Map<String, List<String>> getDevicesMapForLocalRunMode() {
+		Map<String, List<String>> devicesMap = new HashMap<String, List<String>>();
+		List<String> devicesList = new ArrayList<>();
+		if (isUserProvidedDevices()) {
+			if (isPlatformIsAndroid()) {
+				String androidDevices = PropertyReader.readEnvOrConfigProperty(Constants.ANDROID_DEVICES);
+				String[] androidDevicesArr = androidDevices.split(",");
+				devicesList.addAll(Arrays.asList(androidDevicesArr));
+				devicesMap.put(Constants.ANDROID_DEVICES, devicesList);
+			}else if(isPlatformIsIOS()) {
+				String iosDevices = PropertyReader.readEnvOrConfigProperty(Constants.IOS_DEVICES);
+				String[] iosDevicesArr = iosDevices.split(",");
+				devicesList.addAll(Arrays.asList(iosDevicesArr));
+				devicesMap.put(Constants.IOS_DEVICES, devicesList);
+			}
+		}else {
+			if (isPlatformIsAndroid()) {
+				AndroidDeviceConfiguration androidDeviceConfiguration = new AndroidDeviceConfiguration();
+				try {
+					devicesList.addAll(androidDeviceConfiguration.getDeviceSerial());
+					devicesMap.put(Constants.ANDROID_DEVICES, devicesList);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}else if(isPlatformIsIOS()) {
+				IOSDeviceConfiguration iosDeviceConfiguration = new IOSDeviceConfiguration();
+				if (iosDeviceConfiguration.getIOSUDID() != null ) 
+					devicesList.addAll(iosDeviceConfiguration.getIOSUDID());
+				if (devicesList.isEmpty()) 
+					devicesList.add(Constants.IOS_SIMULATOR);
+				devicesMap.put(Constants.IOS_DEVICES, devicesList);
+			}
+		}
+		return devicesMap;
 	
+	}
+	private static List<String> getDevicesListForGridRunMode() {
+		List<String> devicesList = new ArrayList<>();
+		if (isUserProvidedDevices()) {
+
+			if (isPlatformIsAndroid()) {
+				String androidDevices = PropertyReader.readEnvOrConfigProperty(Constants.ANDROID_DEVICES);
+				String[] androidDevicesArr = androidDevices.split(",");
+				devicesList.addAll(Arrays.asList(androidDevicesArr));
+			}else if(isPlatformIsIOS()) {
+				String iosDevices = PropertyReader.readEnvOrConfigProperty(Constants.IOS_DEVICES);
+				String[] iosDevicesArr = iosDevices.split(",");
+				devicesList.addAll(Arrays.asList(iosDevicesArr));
+			}
+			else if(isPlatformIsBOTH()) {
+				if(isAndroidDevicesProvided()) {
+					String androidDevices = PropertyReader.readEnvOrConfigProperty(Constants.ANDROID_DEVICES);
+					String[] androidDevicesArr = androidDevices.split(",");
+					devicesList.addAll(Arrays.asList(androidDevicesArr));
+				}
+				if(isIosDevicesProvided()) {
+					String iosDevices = PropertyReader.readEnvOrConfigProperty(Constants.IOS_DEVICES);
+					String[] iosDevicesArr = iosDevices.split(",");
+					devicesList.addAll(Arrays.asList(iosDevicesArr));
+				}
+			}
+		}else {
+			return null;
+		}
+		return devicesList;
+	}
+	private static Map<String, List<String>> getDevicesMapForGridRunMode() {
+		Map<String, List<String>> devicesMap = new HashMap<String, List<String>>();
+
+		if (isUserProvidedDevices()) {
+			List<String> androidDevicesList = new ArrayList<>();
+			List<String> iosDevicesList = new ArrayList<>();
+			if (isPlatformIsAndroid()) {
+				String androidDevices = PropertyReader.readEnvOrConfigProperty(Constants.ANDROID_DEVICES);
+				String[] androidDevicesArr = androidDevices.split(",");
+				androidDevicesList.addAll(Arrays.asList(androidDevicesArr));
+				devicesMap.put(Constants.ANDROID_DEVICES, androidDevicesList);
+			}else if(isPlatformIsIOS()) {
+				String iosDevices = PropertyReader.readEnvOrConfigProperty(Constants.IOS_DEVICES);
+				String[] iosDevicesArr = iosDevices.split(",");
+				iosDevicesList.addAll(Arrays.asList(iosDevicesArr));
+				devicesMap.put(Constants.IOS_DEVICES, iosDevicesList);
+			}
+			else if(isPlatformIsBOTH()) {
+				if(isAndroidDevicesProvided()) {
+					String androidDevices = PropertyReader.readEnvOrConfigProperty(Constants.ANDROID_DEVICES);
+					String[] androidDevicesArr = androidDevices.split(",");
+					androidDevicesList.addAll(Arrays.asList(androidDevicesArr));
+					devicesMap.put(Constants.ANDROID_DEVICES, androidDevicesList);
+				}
+				if(isIosDevicesProvided()) {
+					String iosDevices = PropertyReader.readEnvOrConfigProperty(Constants.IOS_DEVICES);
+					String[] iosDevicesArr = iosDevices.split(",");
+					iosDevicesList.addAll(Arrays.asList(iosDevicesArr));
+					devicesMap.put(Constants.IOS_DEVICES, iosDevicesList);
+				}
+			}
+		}else {
+			return null;
+		}
+		return devicesMap;
+	}
 	/**
 	 * @author mallikarjun
 	 * @return listOfDevices - provided in cloud.properties
@@ -134,7 +265,6 @@ public class DeviceManager {
 			return false;
 	}
 	
-	
 	/**
 	 * @author mallikarjun
 	 * @return	true - If selected APP_TYPE is IOS (In config.properties)
@@ -142,6 +272,12 @@ public class DeviceManager {
 	 */
 	public static boolean isPlatformIsIOS() {
 		if (getSelectedPlatform().equalsIgnoreCase(Constants.IOS)) {
+			return true;
+		}else
+			return false;
+	}
+	public static boolean isPlatformIsBOTH() {
+		if (getSelectedPlatform().equalsIgnoreCase(Constants.BOTH)) {
 			return true;
 		}else
 			return false;

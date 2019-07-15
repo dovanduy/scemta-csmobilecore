@@ -33,27 +33,24 @@ ISuiteListener {
 	private StringBuffer reportInfo = null;
 
 
-	/**
+	/** Using for RunmodeFactory
 	 * @return RunModeTye (Enum -> LOCAL,REMOTE,CLOUD)
 	 * @see 
 	 **/
-	public static ERunModeType getRunModeType() {
-		String runMode = PropertyReader.readEnvOrConfigProperty("RUN_MODE");
-		if (runMode.equalsIgnoreCase("LOCAL")) {
-			return ERunModeType.LOCAL_RUN;
-		} else if (runMode.equalsIgnoreCase("REMOTE")) {
-			return ERunModeType.REMOTE_RUN;
-		} else if (runMode.equalsIgnoreCase("CLOUD")) {
-			return ERunModeType.CLOUD_RUN;
-		} else if(runMode.equalsIgnoreCase("REMOTEAPPIUM")){
-			return ERunModeType.REMOTE_APPIUM;
-		}else {
-			return ERunModeType.LOCAL_RUN;
-		}
-	}
+	/*
+	 * public static ERunModeType getRunModeType() { String runMode =
+	 * PropertyReader.readEnvOrConfigProperty("RUN_MODE"); if
+	 * (runMode.equalsIgnoreCase("LOCAL")) { return ERunModeType.LOCAL_RUN; } else
+	 * if (runMode.equalsIgnoreCase("REMOTE")) { return ERunModeType.REMOTE_RUN; }
+	 * else if (runMode.equalsIgnoreCase("CLOUD")) { return ERunModeType.CLOUD_RUN;
+	 * } else if(runMode.equalsIgnoreCase("REMOTEAPPIUM")){ return
+	 * ERunModeType.REMOTE_APPIUM; }else if(runMode.equalsIgnoreCase("APPIUMGRID")){
+	 * return ERunModeType.APPIUM_GRID; }else { return ERunModeType.LOCAL_RUN; } }
+	 */
 
 	private AppiumDriver<MobileElement> driver;
 	public String device_udid;
+	public String device_type;
 	private ReportLogServiceImpl report = new ReportLogServiceImpl(AppiumParallelTest.class);
 	private String summary;
 	private String description;
@@ -133,7 +130,7 @@ ISuiteListener {
 	 * 
 	 * */
 	protected AppiumDriver<MobileElement> getDriverForRun() {
-		driver = runMode.getDriverForDevice(device_udid);
+		driver = runMode.getDriverForDevice(device_udid, device_type);
 		return driver;
 	}
  
@@ -154,6 +151,7 @@ ISuiteListener {
 	 *               device value is true if its free else it is false for busy device (i.e. test is
 	 *               running on that device)
 	 **/
+	// TODO
 	protected void initiateDevice(String methodName) throws Exception {
 //		device_udid = runMode.getAvailableDeviceToRunTest();
 		System.out.println("Printing the Next Available device : " + device_udid);

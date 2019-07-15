@@ -37,10 +37,11 @@ public interface IRunMode {
     List<String> getDevicesList();
 
     /**
+     * @param device_type 
      * @return returns a driver for provided deviceId
      * @Info This will create the driver for the provided device and will return it
      */
-    AppiumDriver<MobileElement> getDriverForDevice(String deviceId);
+    AppiumDriver<MobileElement> getDriverForDevice(String deviceId, String device_type);
 
     /**
      * Provides the no of devices on which tests to be run.

@@ -9,6 +9,7 @@ public final class Constants {
 	
 	public static final String ANDROID = "android";
 	public static final String IOS = "ios";
+	public static final String BOTH = "both";
 
     public static final String SUITE_FILES = "SUITE_FILES";
     public static final String MODULE_NAMES = "MODULE_NAMES";
