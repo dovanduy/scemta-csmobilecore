@@ -48,7 +48,13 @@ public class DeviceManager {
 		else
 			return true;
 	}
-	
+	private static boolean isDevicesProvided(ResourceBundle bundle, String devicesKey) {
+		String iosDevices = bundle.getString(devicesKey);
+		if (iosDevices.trim().isEmpty())
+			return false;
+		else
+			return true;
+	}
 	/**
 	 * @author mallikarjun
 	 * @return selectedAppType - returns the APP_TYPE provided in config.properties (ANDROID/IOS)
@@ -92,8 +98,8 @@ public class DeviceManager {
 			return getDevicesMapForLocalRunMode();
 		case APPIUM_GRID:
 			return getDevicesMapForGridRunMode();	 
-//		case CLOUD_RUN:
-//			return getDevicesListForCloudRunMode();		// TODO
+		case CLOUD_RUN:
+			return getDevicesMapForCloudRunMode();	
 		default:
 			return null;
 		}
@@ -248,11 +254,64 @@ public class DeviceManager {
 	 */
 	private static List<String> getDevicesListForCloudRunMode() {
 		ResourceBundle cloudResource = ResourceBundle.getBundle("cloud");
-		String deviceNames = cloudResource.getString("DEVICE_NAME");
-		List<String> devicesToRun = Arrays.asList(deviceNames.split(","));
-		return devicesToRun;
+		List<String> devicesList = new ArrayList<>();
+			if (isPlatformIsAndroid()) {
+				String androidDevices = cloudResource.getString(Constants.ANDROID_DEVICES);
+				String[] androidDevicesArr = androidDevices.split(",");
+				devicesList.addAll(Arrays.asList(androidDevicesArr));
+			}else if(isPlatformIsIOS()) {
+				String iosDevices = cloudResource.getString(Constants.IOS_DEVICES);
+				String[] iosDevicesArr = iosDevices.split(",");
+				devicesList.addAll(Arrays.asList(iosDevicesArr));
+			}
+			else if(isPlatformIsBOTH()) {
+				if(isDevicesProvided(cloudResource, Constants.ANDROID_DEVICES)) {
+					String androidDevices = cloudResource.getString(Constants.ANDROID_DEVICES);
+					String[] androidDevicesArr = androidDevices.split(",");
+					devicesList.addAll(Arrays.asList(androidDevicesArr));
+				}
+				if(isDevicesProvided(cloudResource, Constants.IOS_DEVICES)) {
+					String iosDevices = cloudResource.getString(Constants.IOS_DEVICES);
+					String[] iosDevicesArr = iosDevices.split(",");
+					devicesList.addAll(Arrays.asList(iosDevicesArr));
+				}
+			}
+		return devicesList;
+		
 	}
-	
+	private static Map<String, List<String>> getDevicesMapForCloudRunMode() {
+		ResourceBundle cloudResource = ResourceBundle.getBundle("cloud");
+		Map<String, List<String>> devicesMap = new HashMap<String, List<String>>();
+			List<String> androidDevicesList = new ArrayList<>();
+			List<String> iosDevicesList = new ArrayList<>();
+			if (isPlatformIsAndroid()) {
+				String androidDevices = cloudResource.getString(Constants.ANDROID_DEVICES);
+				String[] androidDevicesArr = androidDevices.split(",");
+				androidDevicesList.addAll(Arrays.asList(androidDevicesArr));
+				devicesMap.put(Constants.ANDROID_DEVICES, androidDevicesList);
+			}else if(isPlatformIsIOS()) {
+				String iosDevices = cloudResource.getString(Constants.IOS_DEVICES);
+				String[] iosDevicesArr = iosDevices.split(",");
+				iosDevicesList.addAll(Arrays.asList(iosDevicesArr));
+				devicesMap.put(Constants.IOS_DEVICES, iosDevicesList);
+			}
+			else if(isPlatformIsBOTH()) {
+				if(isDevicesProvided(cloudResource, Constants.ANDROID_DEVICES)) {
+					String androidDevices = cloudResource.getString(Constants.ANDROID_DEVICES);
+					String[] androidDevicesArr = androidDevices.split(",");
+					androidDevicesList.addAll(Arrays.asList(androidDevicesArr));
+					devicesMap.put(Constants.ANDROID_DEVICES, androidDevicesList);
+				}
+				if(isDevicesProvided(cloudResource, Constants.IOS_DEVICES)) {
+					String iosDevices = cloudResource.getString(Constants.IOS_DEVICES);
+					String[] iosDevicesArr = iosDevices.split(",");
+					iosDevicesList.addAll(Arrays.asList(iosDevicesArr));
+					devicesMap.put(Constants.IOS_DEVICES, iosDevicesList);
+				}
+			}
+
+		return devicesMap;
+	}
 	/**
 	 * @author mallikarjun
 	 * @return 	true - if selected APP_TYPE is Android (In config.properties)

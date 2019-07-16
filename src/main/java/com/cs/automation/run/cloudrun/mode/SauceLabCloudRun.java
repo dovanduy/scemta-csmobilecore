@@ -44,19 +44,19 @@ public class SauceLabCloudRun extends CloudRun implements ICloudRunMode {
 
     }
 
-    private String getDeviceName() {
-        Set<String> devices = devicesNameMap.keySet();
-        for (final String device : devices) {
-            System.out.println("---------------" + devicesNameMap.get(device).size());
-            if (devicesNameMap.get(device).size() != 0) {
-                System.out.println("-------------- Device Name is :" + device);
-                return device;
-            } else {
-                devicesNameMap.remove(device);
-            }
-        }
-        return null;
-    }
+//    private String getDeviceName() {
+//        Set<String> devices = devicesNameMap.keySet();
+//        for (final String device : devices) {
+//            System.out.println("---------------" + devicesNameMap.get(device).size());
+//            if (devicesNameMap.get(device).size() != 0) {
+//                System.out.println("-------------- Device Name is :" + device);
+//                return device;
+//            } else {
+//                devicesNameMap.remove(device);
+//            }
+//        }
+//        return null;
+//    }
     // TODO No setup for iOS
     @Override
     public AppiumDriver<MobileElement> getDriverForDevice(String deviceId, String device_type) {
@@ -70,19 +70,19 @@ public class SauceLabCloudRun extends CloudRun implements ICloudRunMode {
         return driver;
     }
 
-    private String getPlatformVesrion() {
-        Set<String> devices = devicesNameMap.keySet();
-        for (final String device : devices) {
-            String platformVersion = null;
-            if (devicesNameMap.get(device).size() != 0) {
-                platformVersion = devicesNameMap.get(device).get(0);
-                devicesNameMap.get(device).remove(0);
-            }
-            System.out.println("-------------- Platform version is :" + platformVersion);
-            return platformVersion;
-        }
-        return null;
-    }
+//    private String getPlatformVesrion() {
+//        Set<String> devices = devicesNameMap.keySet();
+//        for (final String device : devices) {
+//            String platformVersion = null;
+//            if (devicesNameMap.get(device).size() != 0) {
+//                platformVersion = devicesNameMap.get(device).get(0);
+//                devicesNameMap.get(device).remove(0);
+//            }
+//            System.out.println("-------------- Platform version is :" + platformVersion);
+//            return platformVersion;
+//        }
+//        return null;
+//    }
 
     @Override
     public int getTotalNoOfDevicesForRun() {
@@ -103,9 +103,10 @@ public class SauceLabCloudRun extends CloudRun implements ICloudRunMode {
     public synchronized DesiredCapabilities setCapabilities() {
         System.out.println("Setting Android Desired Capabilities:");
         final DesiredCapabilities androidCapabilities = new DesiredCapabilities();
-        androidCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME, getDeviceName());
-        androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION,
-                getPlatformVesrion());
+        // TODO
+//        androidCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME, getDeviceName());
+//        androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION,
+//                getPlatformVesrion());
         androidCapabilities.setCapability("browserName", PropertyReader.readEnvOrConfigProperty("BROWSER_NAME"));
 
         androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "Android");

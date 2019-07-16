@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 import org.openqa.selenium.remote.DesiredCapabilities;
@@ -119,7 +120,7 @@ public class BrowserStackCloudRun extends CloudRun {
 			try {
 				driver =
 						new IOSDriver<MobileElement>(new URL(cloudResource.getString("URL")),
-								getIOSCaps(deviceId));
+								getIosCaps(deviceId));
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 			}
@@ -136,19 +137,19 @@ public class BrowserStackCloudRun extends CloudRun {
 	}
 
 	
-	protected String getPlatformVesrion() {
-		Set<String> devices = devicesNameMap.keySet();
-		for (final String device : devices) {
-			String platformVersion = null;
-			if (devicesNameMap.get(device).size() != 0) {
-				platformVersion = devicesNameMap.get(device).get(0);
-				devicesNameMap.get(device).remove(0);
-			}
-			System.out.println("-------------- Platform version is :" + platformVersion);
-			return platformVersion;
-		}
-		return null;
-	}
+//	protected String getPlatformVesrion() {
+//		Set<String> devices = devicesNameMap.keySet();
+//		for (final String device : devices) {
+//			String platformVersion = null;
+//			if (devicesNameMap.get(device).size() != 0) {
+//				platformVersion = devicesNameMap.get(device).get(0);
+//				devicesNameMap.get(device).remove(0);
+//			}
+//			System.out.println("-------------- Platform version is :" + platformVersion);
+//			return platformVersion;
+//		}
+//		return null;
+//	}
 
 	@Override
 	public int getTotalNoOfDevicesForRun() {
@@ -174,7 +175,8 @@ public class BrowserStackCloudRun extends CloudRun {
 
 	private DesiredCapabilities getAndroidCaps(String deviceId) {
 		System.out.println("Setting Android Desired Capabilities:");
-		String browserName = PropertyReader.readEnvOrConfigProperty("BROWSER_NAME");
+		ResourceBundle cloudResource = ResourceBundle.getBundle("androidcaps");
+		String browserName = cloudResource.getString("browserName");
 		
 		if (browserName != null ) {
 			if (browserName.length() > 0) {
@@ -226,15 +228,14 @@ public class BrowserStackCloudRun extends CloudRun {
 	}
 	
 	private DesiredCapabilities getAndroidWebCaps(String deviceId) {
-		System.out.println("Setting Android Desired Capabilities:");
-
+		ResourceBundle cloudResource = ResourceBundle.getBundle("androidcaps");
 		final DesiredCapabilities androidCapabilities = new DesiredCapabilities();
 		androidCapabilities.setCapability("device", deviceId);
 		androidCapabilities.setCapability("realMobile", "true");
 		androidCapabilities.setCapability("os_version",
 				getPlatformVersionForDevice(deviceId));
 
-		androidCapabilities.setCapability("browserName", PropertyReader.readEnvOrConfigProperty("BROWSER_NAME"));
+		androidCapabilities.setCapability("browserName", cloudResource.getString("browserName"));
 
 		androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "Android");
 		androidCapabilities.setCapability(MobileCapabilityType.APPIUM_VERSION, PropertyReader.readEnvOrConfigProperty("APPIUM_VERSION"));
@@ -249,10 +250,43 @@ public class BrowserStackCloudRun extends CloudRun {
 		return androidCapabilities;
 	}
 
+	private DesiredCapabilities getIosCaps(String deviceId) {
+		System.out.println("Setting Ios Desired Capabilities:");
+		ResourceBundle cloudResource = ResourceBundle.getBundle("ioscaps");
+		String browserName = cloudResource.getString("browserName");
+		
+		if (browserName != null ) {
+			if (browserName.length() > 0) {
+				report.info("Running test on iOS browser :: "+ browserName);
+				return getIOSWebCaps(deviceId);
+			}
+		}
 
-	private DesiredCapabilities getIOSCaps(String deviceId) {
+		report.info("Running test for iOS native app");
+		return getIOSNativeCaps(deviceId);	
+	}
+
+	private DesiredCapabilities getIOSWebCaps(String deviceId) {
 		final DesiredCapabilities iOSCapabilities = new DesiredCapabilities();
+		ResourceBundle cloudResource = ResourceBundle.getBundle("ioscaps");
+		iOSCapabilities.setCapability("device", deviceId);
+		iOSCapabilities.setCapability("realMobile", "true");
+		iOSCapabilities.setCapability("os_version",getPlatformVersionForDevice(deviceId));
 
+		iOSCapabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, cloudResource.getString(MobileCapabilityType.AUTOMATION_NAME));
+		iOSCapabilities.setCapability(IOSMobileCapabilityType.AUTO_ACCEPT_ALERTS, true);
+		iOSCapabilities.setCapability(MobileCapabilityType.FULL_RESET, PropertyReader.getProperty(Constants.FULL_RESET));
+		iOSCapabilities.setCapability(MobileCapabilityType.NO_RESET, PropertyReader.getProperty(Constants.NO_RESET));
+		iOSCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "iPhone"); // For real device
+		iOSCapabilities.setCapability(IOSMobileCapabilityType.BROWSER_NAME, cloudResource.getString(IOSMobileCapabilityType.BROWSER_NAME));
+
+		return iOSCapabilities;
+
+	}
+	private DesiredCapabilities getIOSNativeCaps(String deviceId) {
+		// TODO
+		final DesiredCapabilities iOSCapabilities = new DesiredCapabilities();
+		ResourceBundle cloudResource = ResourceBundle.getBundle("ioscaps");
 		iOSCapabilities.setCapability("device", deviceId);
 		iOSCapabilities.setCapability("realMobile", "true");
 		iOSCapabilities.setCapability("os_version",getPlatformVersionForDevice(deviceId));
@@ -268,7 +302,6 @@ public class BrowserStackCloudRun extends CloudRun {
 		return iOSCapabilities;
 
 	}
-
 	private String getCloudPropertyValue(String key) {
 		String value = System.getProperty(key);
 		if (value == null || value.trim().length() == 0) {

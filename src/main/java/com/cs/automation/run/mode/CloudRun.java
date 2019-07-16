@@ -18,10 +18,10 @@ public class CloudRun implements IRunMode {
 	protected static ResourceBundle cloudResource;
 	private static int deviceCount;
 	protected static ResourceBundle resources;
-	protected static ConcurrentHashMap<String, List<String>> devicesNameMap =
-			new ConcurrentHashMap<String, List<String>>();
-	protected static ConcurrentHashMap<String, List<String>> deviceNamePlatformVersionMap =
-			new ConcurrentHashMap<String, List<String>>();
+//	protected static ConcurrentHashMap<String, List<String>> devicesNameMap =
+//			new ConcurrentHashMap<String, List<String>>();
+//	protected static ConcurrentHashMap<String, List<String>> deviceNamePlatformVersionMap =
+//			new ConcurrentHashMap<String, List<String>>();
 
 	/**
 	 * deviceMapping is a map in which the key is deviceId with value as true/false when test is
@@ -35,8 +35,9 @@ public class CloudRun implements IRunMode {
 		resources = ResourceBundle.getBundle("config");
 		init(CloudRun.getCloudRunMode());
 		System.out.println("inside static block***************");
-		String[] deviceNames = cloudResource.getString("DEVICE_NAME").split(",");
-		String[] platformVersions = cloudResource.getString("PLATFORM_VERSION").split(",");
+		String[] andrDeviceNames = cloudResource.getString(Constants.ANDROID_DEVICES).split(",");
+		String[] iosDeviceNames = cloudResource.getString(Constants.IOS_DEVICES).split(",");
+//		String[] platformVersions = cloudResource.getString("PLATFORM_VERSION").split(",");
 
 		/*
         if (PropertyReader.getProperty(Constants.APP_TYPE).equalsIgnoreCase("android")
@@ -47,48 +48,51 @@ public class CloudRun implements IRunMode {
         }
 		 */
 
-		System.err.println("deviceNames:"+deviceNames.toString());
-		
-		for (String device : deviceNames) {
-			System.err.println("deviceName:"+device);
-		}
-		
-		
-		System.err.println("platformVersions:"+platformVersions.toString());
-		
-		for (String version : platformVersions) {
-			System.err.println("version:"+version);
-		}
-		
-		
-		for (final String device : deviceNames) {
+//		System.err.println("deviceNames:"+deviceNames.toString());
+//		
+//		for (String device : deviceNames) {
+//			System.err.println("deviceName:"+device);
+//		}
+//		
+//		
+//		System.err.println("platformVersions:"+platformVersions.toString());
+//		
+//		for (String version : platformVersions) {
+//			System.err.println("version:"+version);
+//		}
+//		
+		if(andrDeviceNames.length > 0)
+		for (final String device : andrDeviceNames) {
 			deviceList.add(device);
 		}
-
-		for (String deviceName : deviceNames) {
-			if (devicesNameMap.get(deviceName) == null) {
-				List<String> platformVersionList = new ArrayList<String>();
-				int count = 0;
-				for (int i = Arrays.asList(deviceNames).indexOf(deviceName) + 1; i < deviceNames.length; i++) {
-					System.out.println(deviceNames[i] + "------------------" + deviceName + "   "
-							+ count);
-					if (deviceName.equals(deviceNames[i])) {
-						count++;
-						if (count == 1) {
-							platformVersionList.add(platformVersions[Arrays.asList(deviceNames)
-							                                         .indexOf(deviceName)]);
-						}
-						platformVersionList.add(platformVersions[i]);
-					} else if (i == deviceNames.length - 1) {
-						System.out.println("inside else if" + deviceNames.length);
-						platformVersionList.add(platformVersions[Arrays.asList(deviceNames)
-						                                         .indexOf(deviceName)]);
-					}
-				}
-				devicesNameMap.put(deviceName, platformVersionList);
-				System.out.println("List of platform version is:" + platformVersionList);
-			}
+		if(iosDeviceNames.length > 0)
+		for (final String device : iosDeviceNames) {
+			deviceList.add(device);
 		}
+//		for (String deviceName : deviceNames) {
+//			if (devicesNameMap.get(deviceName) == null) {
+//				List<String> platformVersionList = new ArrayList<String>();
+//				int count = 0;
+//				for (int i = Arrays.asList(deviceNames).indexOf(deviceName) + 1; i < deviceNames.length; i++) {
+//					System.out.println(deviceNames[i] + "------------------" + deviceName + "   "
+//							+ count);
+//					if (deviceName.equals(deviceNames[i])) {
+//						count++;
+//						if (count == 1) {
+//							platformVersionList.add(platformVersions[Arrays.asList(deviceNames)
+//							                                         .indexOf(deviceName)]);
+//						}
+//						platformVersionList.add(platformVersions[i]);
+//					} else if (i == deviceNames.length - 1) {
+//						System.out.println("inside else if" + deviceNames.length);
+//						platformVersionList.add(platformVersions[Arrays.asList(deviceNames)
+//						                                         .indexOf(deviceName)]);
+//					}
+//				}
+//				devicesNameMap.put(deviceName, platformVersionList);
+//				System.out.println("List of platform version is:" + platformVersionList);
+//			}
+//		}
 	}
 
 	private static CloudRun cloudRunObject;
