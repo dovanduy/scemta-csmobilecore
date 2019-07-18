@@ -18,6 +18,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import com.cs.automation.appium.device.DeviceManager;
 import com.cs.automation.util.reporter.ReportLogServiceImpl;
 import com.cs.automation.utils.appium.AvailablePorts;
+import com.cs.automation.utils.enums.ERunModeType;
 import com.cs.automation.utils.general.Constants;
 import com.cs.automation.utils.general.PropertyReader;
 
@@ -125,7 +126,7 @@ public class AppiumGrid implements IRunMode {
 	
 	@Override
 	public List<String> getDevicesList() {
-		return null;
+		return DeviceManager.getSelectedDevices(ERunModeType.APPIUM_GRID);
 	}
 
 	@Override
@@ -201,10 +202,10 @@ public class AppiumGrid implements IRunMode {
 	private synchronized DesiredCapabilities androidCaps(String deviceId) {
 		DesiredCapabilities androidCapabilities = new DesiredCapabilities();
 		androidCapabilities.setCapability(MobileCapabilityType.UDID, deviceId);
-		androidCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME, PropertyReader.readEnvOrConfigProperty(Constants.DEVICE_NAME));
-		androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, PropertyReader.readEnvOrConfigProperty(Constants.PLATFORM_NAME));
-		androidCapabilities.setCapability(MobileCapabilityType.BROWSER_NAME, PropertyReader.readEnvOrConfigProperty(Constants.BROWSER_NAME));
-		androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, PropertyReader.readEnvOrConfigProperty(Constants.PLATFORM_VERSION));
+		androidCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "Android");
+		//androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, PropertyReader.readEnvOrConfigProperty(Constants.PLATFORM_NAME));
+		//androidCapabilities.setCapability(MobileCapabilityType.BROWSER_NAME, PropertyReader.readEnvOrConfigProperty(Constants.BROWSER_NAME));
+		//androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, PropertyReader.readEnvOrConfigProperty(Constants.PLATFORM_VERSION));
 		androidCapabilities.setCapability(MobileCapabilityType.NEW_COMMAND_TIMEOUT, PropertyReader.readEnvOrConfigProperty(Constants.NEW_COMMAND_TIMEOUT));
 		
 		try {
@@ -251,12 +252,12 @@ public class AppiumGrid implements IRunMode {
 
 		iOSCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, ""); // For real device
 		iOSCapabilities.setCapability(MobileCapabilityType.UDID,udid);
-		iOSCapabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, PropertyReader.readEnvOrConfigProperty(Constants.AUTOMATION_NAME));
+		//iOSCapabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, PropertyReader.readEnvOrConfigProperty(Constants.AUTOMATION_NAME));
 		iOSCapabilities.setCapability(IOSMobileCapabilityType.AUTO_ACCEPT_ALERTS, true);
 		iOSCapabilities.setCapability(MobileCapabilityType.FULL_RESET, PropertyReader.readEnvOrConfigProperty(Constants.FULL_RESET));
 		iOSCapabilities.setCapability(MobileCapabilityType.NO_RESET, PropertyReader.readEnvOrConfigProperty(Constants.NO_RESET));
 		iOSCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "iPhone"); // For real device
-		iOSCapabilities.setCapability(IOSMobileCapabilityType.BROWSER_NAME, PropertyReader.readEnvOrConfigProperty(Constants.BROWSER_NAME));
+		//iOSCapabilities.setCapability(IOSMobileCapabilityType.BROWSER_NAME, PropertyReader.readEnvOrConfigProperty(Constants.BROWSER_NAME));
 		
 		
 		//added in v0.1.3 _____by Suraj //

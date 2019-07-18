@@ -158,22 +158,22 @@ public class LocalRun implements IRunMode {
 		DesiredCapabilities androidCapabilities = new DesiredCapabilities();
 		androidCapabilities.setCapability(MobileCapabilityType.UDID, deviceId);
 		androidCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "Android");
-		androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, "5.X");
+		//androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, "5.X");
 		androidCapabilities.setCapability("browserName", "");
 		androidCapabilities.setCapability(MobileCapabilityType.NO_RESET, PropertyReader
 				.readEnvOrConfigProperty(Constants.NO_RESET));
 		androidCapabilities.setCapability(MobileCapabilityType.FULL_RESET, PropertyReader
 				.readEnvOrConfigProperty(Constants.FULL_RESET));
-		androidCapabilities.setCapability(MobileCapabilityType.APP, getAppPath());
-		androidCapabilities.setCapability(AndroidMobileCapabilityType.APP_PACKAGE, PropertyReader
-				.readEnvOrConfigProperty(Constants.APP_PACKAGE));
-		androidCapabilities.setCapability(AndroidMobileCapabilityType.APP_ACTIVITY, PropertyReader
-				.readEnvOrConfigProperty(Constants.APP_ACTIVITY));
-		androidCapabilities.setCapability(MobileCapabilityType.BROWSER_NAME, PropertyReader.readEnvOrConfigProperty(Constants.BROWSER_NAME));
-		if (PropertyReader.getProperty(Constants.APP_WAIT_ACTIVITY) != null) {
-			androidCapabilities.setCapability(AndroidMobileCapabilityType.APP_WAIT_ACTIVITY,
-					PropertyReader.getProperty(Constants.APP_WAIT_ACTIVITY));
-		}
+//		androidCapabilities.setCapability(MobileCapabilityType.APP, getAppPath());
+//		androidCapabilities.setCapability(AndroidMobileCapabilityType.APP_PACKAGE, PropertyReader
+//				.readEnvOrConfigProperty(Constants.APP_PACKAGE));
+//		androidCapabilities.setCapability(AndroidMobileCapabilityType.APP_ACTIVITY, PropertyReader
+//				.readEnvOrConfigProperty(Constants.APP_ACTIVITY));
+//		androidCapabilities.setCapability(MobileCapabilityType.BROWSER_NAME, PropertyReader.readEnvOrConfigProperty(Constants.BROWSER_NAME));
+//		if (PropertyReader.getProperty(Constants.APP_WAIT_ACTIVITY) != null) {
+//			androidCapabilities.setCapability(AndroidMobileCapabilityType.APP_WAIT_ACTIVITY,
+//					PropertyReader.getProperty(Constants.APP_WAIT_ACTIVITY));
+//		}
 		
 		try {
 			androidCapabilities = addExtraCapsFromFile(androidCapabilities, Constants.ANDROID_CAPS_PROP_FILE);
@@ -191,10 +191,10 @@ public class LocalRun implements IRunMode {
 	private synchronized DesiredCapabilities androidWeb(String deviceId) {
 		DesiredCapabilities androidCapabilities = new DesiredCapabilities();
 		androidCapabilities.setCapability(MobileCapabilityType.UDID, deviceId);
-		androidCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME, PropertyReader.readEnvOrConfigProperty(Constants.DEVICE_NAME));
-		androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, PropertyReader.readEnvOrConfigProperty(Constants.PLATFORM_NAME));
-		androidCapabilities.setCapability(MobileCapabilityType.BROWSER_NAME, PropertyReader.readEnvOrConfigProperty(Constants.BROWSER_NAME));
-		androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, PropertyReader.readEnvOrConfigProperty(Constants.PLATFORM_VERSION));
+		androidCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "Android");
+//		androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, PropertyReader.readEnvOrConfigProperty(Constants.PLATFORM_NAME));
+//		androidCapabilities.setCapability(MobileCapabilityType.BROWSER_NAME, PropertyReader.readEnvOrConfigProperty(Constants.BROWSER_NAME));
+//		androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, PropertyReader.readEnvOrConfigProperty(Constants.PLATFORM_VERSION));
 		androidCapabilities.setCapability(MobileCapabilityType.NEW_COMMAND_TIMEOUT, PropertyReader.readEnvOrConfigProperty(Constants.NEW_COMMAND_TIMEOUT));
 		
 		try {

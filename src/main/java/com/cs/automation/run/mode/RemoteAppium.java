@@ -207,10 +207,10 @@ public class RemoteAppium implements IRunMode {
 	private synchronized DesiredCapabilities androidCaps(String deviceId) {
 		DesiredCapabilities androidCapabilities = new DesiredCapabilities();
 		androidCapabilities.setCapability(MobileCapabilityType.UDID, deviceId);
-		androidCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME, PropertyReader.readEnvOrConfigProperty(Constants.DEVICE_NAME));
-		androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, PropertyReader.readEnvOrConfigProperty(Constants.PLATFORM_NAME));
-		androidCapabilities.setCapability(MobileCapabilityType.BROWSER_NAME, PropertyReader.readEnvOrConfigProperty(Constants.BROWSER_NAME));
-		androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, PropertyReader.readEnvOrConfigProperty(Constants.PLATFORM_VERSION));
+		androidCapabilities.setCapability(MobileCapabilityType.DEVICE_NAME, "Android");
+//		androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, PropertyReader.readEnvOrConfigProperty(Constants.PLATFORM_NAME));
+//		androidCapabilities.setCapability(MobileCapabilityType.BROWSER_NAME, PropertyReader.readEnvOrConfigProperty(Constants.BROWSER_NAME));
+//		androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_VERSION, PropertyReader.readEnvOrConfigProperty(Constants.PLATFORM_VERSION));
 		androidCapabilities.setCapability(MobileCapabilityType.NEW_COMMAND_TIMEOUT, PropertyReader.readEnvOrConfigProperty(Constants.NEW_COMMAND_TIMEOUT));
 		
 		try {

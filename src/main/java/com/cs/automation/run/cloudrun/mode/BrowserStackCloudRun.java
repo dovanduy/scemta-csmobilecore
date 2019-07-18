@@ -79,26 +79,32 @@ public class BrowserStackCloudRun extends CloudRun {
 	 * @author mallikarjun
 	 * @return deviceNames - provided comma separated device names in cloud.properties
 	 */
-	private String getDeviceNames() {
-		return getCloudPropertyValue("DEVICE_NAME");
+	private String getDeviceNames(String platform) {
+		if(platform.equalsIgnoreCase("ios"))
+			return getCloudPropertyValue("IOSDevices");
+		else
+			return getCloudPropertyValue("AndroidDevices");
 	}
 	
 	/**
 	 * @author mallikarjun
 	 * @return deviceVersions - provided comma separated device Versions in cloud.properties
 	 */
-	private String getDeviceVersions() {
-		return getCloudPropertyValue("PLATFORM_VERSION");
+	private String getDeviceVersions(String platform) {
+		if(platform.equalsIgnoreCase("ios"))
+			return getCloudPropertyValue("IosPlatforms");
+		else
+			return getCloudPropertyValue("AndroidPlatforms");
 	}
 	
 	/**
 	 * @author mallikarjun
 	 * @return deviceVersionMap - the map with key as deviceId and value as corresponding os_version provided in cloud.properties
 	 */
-	private Map<String, String> getDeviceVersionsMap() {
+	private Map<String, String> getDeviceVersionsMap(String deviceType) {
 		if (deviceVersionsMap.isEmpty()) {
-			List<String> deviceNames = Arrays.asList(getDeviceNames().split(","));
-			List<String> deviceVersions = Arrays.asList(getDeviceVersions().split(","));
+			List<String> deviceNames = Arrays.asList(getDeviceNames(deviceType).split(","));
+			List<String> deviceVersions = Arrays.asList(getDeviceVersions(deviceType).split(","));
 			
 			for (int deviceIndex = 0; deviceIndex < deviceNames.size(); deviceIndex++) {
 				deviceVersionsMap.put(deviceNames.get(deviceIndex), deviceVersions.get(deviceIndex));
@@ -158,7 +164,8 @@ public class BrowserStackCloudRun extends CloudRun {
 
 	@Override
 	public void onSuiteFinish() {
-		driver.quit();
+		if(driver != null)
+			driver.quit();
 	}
 
 	@Override
@@ -194,7 +201,7 @@ public class BrowserStackCloudRun extends CloudRun {
 		androidCapabilities.setCapability("device", deviceId);
 		androidCapabilities.setCapability("realMobile", "true");
 		androidCapabilities.setCapability("os_version",
-				getPlatformVersionForDevice(deviceId));
+				getPlatformVersionForDevice(deviceId, "android"));
 
 		androidCapabilities.setCapability(MobileCapabilityType.PLATFORM_NAME, "Android");
 		androidCapabilities.setCapability(MobileCapabilityType.APPIUM_VERSION, PropertyReader.readEnvOrConfigProperty("APPIUM_VERSION"));
@@ -233,7 +240,7 @@ public class BrowserStackCloudRun extends CloudRun {
 		androidCapabilities.setCapability("device", deviceId);
 		androidCapabilities.setCapability("realMobile", "true");
 		androidCapabilities.setCapability("os_version",
-				getPlatformVersionForDevice(deviceId));
+				getPlatformVersionForDevice(deviceId, "android"));
 
 		androidCapabilities.setCapability("browserName", cloudResource.getString("browserName"));
 
@@ -271,7 +278,7 @@ public class BrowserStackCloudRun extends CloudRun {
 		ResourceBundle cloudResource = ResourceBundle.getBundle("ioscaps");
 		iOSCapabilities.setCapability("device", deviceId);
 		iOSCapabilities.setCapability("realMobile", "true");
-		iOSCapabilities.setCapability("os_version",getPlatformVersionForDevice(deviceId));
+		iOSCapabilities.setCapability("os_version",getPlatformVersionForDevice(deviceId, "ios"));
 
 		iOSCapabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, cloudResource.getString(MobileCapabilityType.AUTOMATION_NAME));
 		iOSCapabilities.setCapability(IOSMobileCapabilityType.AUTO_ACCEPT_ALERTS, true);
@@ -289,7 +296,7 @@ public class BrowserStackCloudRun extends CloudRun {
 		ResourceBundle cloudResource = ResourceBundle.getBundle("ioscaps");
 		iOSCapabilities.setCapability("device", deviceId);
 		iOSCapabilities.setCapability("realMobile", "true");
-		iOSCapabilities.setCapability("os_version",getPlatformVersionForDevice(deviceId));
+		iOSCapabilities.setCapability("os_version",getPlatformVersionForDevice(deviceId,"ios"));
 
 		iOSCapabilities.setCapability(IOSMobileCapabilityType.BUNDLE_ID, PropertyReader.readEnvOrConfigProperty(Constants.BUNDLE_ID));
 		iOSCapabilities.setCapability(MobileCapabilityType.AUTOMATION_NAME, PropertyReader.readEnvOrConfigProperty(Constants.AUTOMATION_NAME));
@@ -315,8 +322,8 @@ public class BrowserStackCloudRun extends CloudRun {
 	 * @param deviceId - the device id of mobile device (ios/android)
 	 * @return platformVersion - the platformVersion provided for given device in cloud.properties
 	 * **/
-	private String getPlatformVersionForDevice(String deviceId) {
-		return getDeviceVersionsMap().get(deviceId);
+	private String getPlatformVersionForDevice(String deviceId, String deviceType) {
+		return getDeviceVersionsMap(deviceType).get(deviceId);
 	}
 
 }

@@ -27,6 +27,9 @@ public class RunModeFactory {
 		case APPIUM_GRID:
 			runMode = new AppiumGrid();
 			break;
+		case RUN_IN_ALL:
+			runMode = new TotalRun();
+			break;	
 		default:
 			runMode = null;
 			break;
@@ -53,6 +56,9 @@ public class RunModeFactory {
 		case APPIUM_GRID:
 			runMode = new AppiumGrid();
 			break;
+		case RUN_IN_ALL:
+			runMode = new TotalRun();
+			break;	
 		default:
 			runMode = null;
 			break;
@@ -72,6 +78,8 @@ public class RunModeFactory {
 			return ERunModeType.REMOTE_APPIUM;
 		} else if (runMode.equalsIgnoreCase("APPIUMGRID")) {
 			return ERunModeType.APPIUM_GRID;
+		} else if (runMode.equalsIgnoreCase("RUNALL")) {
+			return ERunModeType.RUN_IN_ALL;
 		} else {
 			return ERunModeType.LOCAL_RUN;
 		}

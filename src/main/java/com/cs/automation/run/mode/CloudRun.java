@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.cs.automation.appium.device.DeviceManager;
 import com.cs.automation.run.cloudrun.mode.BrowserStackCloudRun;
 import com.cs.automation.run.cloudrun.mode.SauceLabCloudRun;
 import com.cs.automation.utils.enums.ECloudRunType;
+import com.cs.automation.utils.enums.ERunModeType;
 import com.cs.automation.utils.general.Constants;
 
 import io.appium.java_client.AppiumDriver;
@@ -99,9 +101,9 @@ public class CloudRun implements IRunMode {
 
 	private static ECloudRunType getCloudRunMode() {
 		String runMode = readEnvOrConfigProperty("CLOUD_RUN");
-		if (runMode.equals("SAUCELAB")) {
+		if (runMode.equalsIgnoreCase("SAUCELAB")) {
 			return ECloudRunType.SAUCE_LAB;
-		}else if(runMode.equals("BROWSER_STACK")) {
+		}else if(runMode.equalsIgnoreCase("BROWSER_STACK")) {
 			return ECloudRunType.BROWSER_STACK;
 		}
 		return null;
@@ -157,9 +159,8 @@ public class CloudRun implements IRunMode {
 	}
 
 	@Override
-	public ArrayList<String> getDevicesList() {
-		// TODO Auto-generated method stub
-		return null;
+	public List<String> getDevicesList() {
+		return DeviceManager.getSelectedDevices(ERunModeType.CLOUD_RUN);
 	}
 
 	@Override
